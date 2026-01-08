@@ -200,17 +200,14 @@ Route::group(['prefix' => '/api', 'middleware' => [AuthMiddleware::class]], func
     });
     
     // ─────────────────────────────────────────────────────────
-    // Users
+    // Users CRUD
     // ─────────────────────────────────────────────────────────
     
-    Route::get('/users', function(Request $req, Response $res) {
-        try {
-            $users = db()->raw('SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC LIMIT 50');
-            return $res->json($users);
-        } catch (\Throwable $e) {
-            return $res->json([]);
-        }
-    });
+    Route::get('/users', fn(Request $req, Response $res) => \App\Handlers\Settings\UserHandler::index($req, $res));
+    Route::get('/users/{id}', fn(Request $req, Response $res, array $params) => \App\Handlers\Settings\UserHandler::show($req, $res, $params));
+    Route::post('/users', fn(Request $req, Response $res) => \App\Handlers\Settings\UserHandler::store($req, $res));
+    Route::put('/users/{id}', fn(Request $req, Response $res, array $params) => \App\Handlers\Settings\UserHandler::update($req, $res, $params));
+    Route::delete('/users/{id}', fn(Request $req, Response $res, array $params) => \App\Handlers\Settings\UserHandler::destroy($req, $res, $params));
     
     // Settings
     Route::get('/settings', fn(Request $req, Response $res) => (new \App\Handlers\Settings\SettingsHandler())->index($req, $res));
