@@ -2,6 +2,25 @@
 // public/admin/layout.php
 // Shared layout file
 
+// Ensure helpers and plugins are loaded
+require_once __DIR__ . '/../../config/bootstrap.php';
+
+// Start session if not already started
+session();
+
+// Check authentication - redirect to login if not authenticated
+if (!Core\Auth::check()) {
+    $loginUrl = '/login';
+    // Handle subdirectory installations
+    $scriptDir = dirname($_SERVER['SCRIPT_NAME']);
+    $basePath = str_replace('/admin', '', $scriptDir);
+    if ($basePath !== '/' && $basePath !== '') {
+        $loginUrl = $basePath . $loginUrl;
+    }
+    header('Location: ' . $loginUrl);
+    exit;
+}
+
 // Calculate base path for subdirectory support (e.g., /intent-cms-pro)
 $scriptDir = dirname($_SERVER['SCRIPT_NAME']);
 $basePath = str_replace('/admin', '', $scriptDir);
@@ -17,6 +36,9 @@ if ($basePath === '/') $basePath = '';
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link rel="stylesheet" href="<?= $basePath ?>/assets/css/app.css">
+
+    <!-- Plugin Assets Hook -->
+    <?php do_action('cms.admin.head'); ?>
 
     <!-- Editor.js & Plugins -->
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
@@ -271,6 +293,11 @@ if ($basePath === '/') $basePath = '';
                     'Tags'      => ['url' => $basePath . '/admin/tags.php', 'icon' => 'label'],
                 ];
 
+                // Allow plugins to inject menu items
+                // Filter: cms.admin.menu
+                // Arguments: array $navItems
+                $navItems = apply_filters('cms.admin.menu', $navItems);
+
                 $currentUrl = $_SERVER['PHP_SELF'];
 
                 foreach ($navItems as $name => $item) {
@@ -297,9 +324,31 @@ if ($basePath === '/') $basePath = '';
                 <a href="<?= $basePath ?>/admin/users.php" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-primary transition-colors">
                     <span class="material-icons-round text-xl mr-3">people</span> Users
                 </a>
+                <a href="<?= $basePath ?>/admin/plugins.php" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-primary transition-colors">
+                    <span class="material-icons-round text-xl mr-3">extension</span> Plugins
+                </a>
                 <a href="<?= $basePath ?>/admin/settings.php" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-primary transition-colors">
                     <span class="material-icons-round text-xl mr-3">settings</span> Settings
                 </a>
+
+                <?php
+                // Render plugin menu items from #[AdminMenuItem] attributes
+                $pluginManager = \App\Services\PluginManager::getInstance();
+                $pluginMenuItems = $pluginManager->getMenuItems();
+                if (!empty($pluginMenuItems)) {
+                    echo '<p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-6">Plugins</p>';
+                    foreach ($pluginMenuItems as $menuItem) {
+                        $icon = $menuItem->icon ?: 'extension';
+                        $route = $basePath . $menuItem->route;
+                        echo "<a href=\"{$route}\" class=\"flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-primary transition-colors\">";
+                        echo "<span class=\"material-icons-round text-xl mr-3\">{$icon}</span> {$menuItem->label}";
+                        if ($menuItem->badge) {
+                            echo "<span class=\"ml-auto bg-primary text-white text-xs px-2 py-0.5 rounded-full\">{$menuItem->badge}</span>";
+                        }
+                        echo "</a>";
+                    }
+                }
+                ?>
 
                 <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-6">Developer</p>
                 
@@ -398,5 +447,8 @@ if ($basePath === '/') $basePath = '';
     <script>
         document.addEventListener('DOMContentLoaded', () => App.init());
     </script>
+    
+    <!-- Plugin Scripts Hook -->
+    <?php do_action('cms.admin.footer'); ?>
 </body>
 </html>

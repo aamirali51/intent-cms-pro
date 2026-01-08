@@ -145,11 +145,11 @@ Route::group(['prefix' => '/api', 'middleware' => [AuthMiddleware::class]], func
     // Posts CRUD
     // ─────────────────────────────────────────────────────────
     
-    Route::get('/posts', [\App\Handlers\Content\PostHandler::class, 'index']);
-    Route::post('/posts', [\App\Handlers\Content\PostHandler::class, 'store']);
-    Route::get('/posts/{id}', [\App\Handlers\Content\PostHandler::class, 'show']);
-    Route::put('/posts/{id}', [\App\Handlers\Content\PostHandler::class, 'update']);
-    Route::delete('/posts/{id}', [\App\Handlers\Content\PostHandler::class, 'destroy']);
+    Route::get('/posts', fn(Request $req, Response $res) => (new \App\Handlers\Content\PostHandler())->index($req, $res));
+    Route::post('/posts', fn(Request $req, Response $res) => (new \App\Handlers\Content\PostHandler())->store($req, $res));
+    Route::get('/posts/{id}', fn(Request $req, Response $res, array $params) => (new \App\Handlers\Content\PostHandler())->show($req, $res, $params));
+    Route::put('/posts/{id}', fn(Request $req, Response $res, array $params) => (new \App\Handlers\Content\PostHandler())->update($req, $res, $params));
+    Route::delete('/posts/{id}', fn(Request $req, Response $res, array $params) => (new \App\Handlers\Content\PostHandler())->destroy($req, $res, $params));
     
     // ─────────────────────────────────────────────────────────
     // Pages CRUD
@@ -164,22 +164,27 @@ Route::group(['prefix' => '/api', 'middleware' => [AuthMiddleware::class]], func
         }
     });
     
+    Route::get('/pages/{id}', fn(Request $req, Response $res, array $params) => (new \App\Handlers\Content\PageHandler())->show($req, $res, $params));
+    Route::post('/pages', fn(Request $req, Response $res) => (new \App\Handlers\Content\PageHandler())->store($req, $res));
+    Route::put('/pages/{id}', fn(Request $req, Response $res, array $params) => (new \App\Handlers\Content\PageHandler())->update($req, $res, $params));
+    Route::delete('/pages/{id}', fn(Request $req, Response $res, array $params) => (new \App\Handlers\Content\PageHandler())->destroy($req, $res, $params));
+    
     // ─────────────────────────────────────────────────────────
     // Media
     // ─────────────────────────────────────────────────────────
     
-    Route::get('/media', [\App\Handlers\Media\MediaHandler::class, 'index']);
-    Route::post('/media/upload', [\App\Handlers\Media\MediaHandler::class, 'upload']);
-    Route::post('/media/bulk-delete', [\App\Handlers\Media\MediaHandler::class, 'bulkDelete']);
-    Route::delete('/media/{id}', [\App\Handlers\Media\MediaHandler::class, 'delete']);
-    Route::put('/media/{id}', [\App\Handlers\Media\MediaHandler::class, 'update']);
+    Route::get('/media', fn(Request $req, Response $res) => (new \App\Handlers\Media\MediaHandler())->index($req, $res));
+    Route::post('/media/upload', fn(Request $req, Response $res) => (new \App\Handlers\Media\MediaHandler())->upload($req, $res));
+    Route::post('/media/bulk-delete', fn(Request $req, Response $res) => (new \App\Handlers\Media\MediaHandler())->bulkDelete($req, $res));
+    Route::delete('/media/{id}', fn(Request $req, Response $res, array $params) => (new \App\Handlers\Media\MediaHandler())->delete($req, $res, $params));
+    Route::put('/media/{id}', fn(Request $req, Response $res, array $params) => (new \App\Handlers\Media\MediaHandler())->update($req, $res, $params));
     
     // Media Folders
-    Route::get('/media/folders', [\App\Handlers\Media\MediaHandler::class, 'getFolders']);
-    Route::post('/media/folders', [\App\Handlers\Media\MediaHandler::class, 'createFolder']);
-    Route::delete('/media/folders/{id}', [\App\Handlers\Media\MediaHandler::class, 'deleteFolder']);
-    Route::post('/media/move', [\App\Handlers\Media\MediaHandler::class, 'moveFiles']);
-    Route::put('/media/folders/{id}', [\App\Handlers\Media\MediaHandler::class, 'updateFolder']);
+    Route::get('/media/folders', fn(Request $req, Response $res) => (new \App\Handlers\Media\MediaHandler())->getFolders($req, $res));
+    Route::post('/media/folders', fn(Request $req, Response $res) => (new \App\Handlers\Media\MediaHandler())->createFolder($req, $res));
+    Route::delete('/media/folders/{id}', fn(Request $req, Response $res, array $params) => (new \App\Handlers\Media\MediaHandler())->deleteFolder($req, $res, $params));
+    Route::post('/media/move', fn(Request $req, Response $res) => (new \App\Handlers\Media\MediaHandler())->moveFiles($req, $res));
+    Route::put('/media/folders/{id}', fn(Request $req, Response $res, array $params) => (new \App\Handlers\Media\MediaHandler())->updateFolder($req, $res, $params));
     
     // ─────────────────────────────────────────────────────────
     // Categories
@@ -207,12 +212,19 @@ Route::group(['prefix' => '/api', 'middleware' => [AuthMiddleware::class]], func
         }
     });
     
-    // ─────────────────────────────────────────────────────────
     // Settings
-    // ─────────────────────────────────────────────────────────
+    Route::get('/settings', fn(Request $req, Response $res) => (new \App\Handlers\Settings\SettingsHandler())->index($req, $res));
+    Route::put('/settings', fn(Request $req, Response $res) => (new \App\Handlers\Settings\SettingsHandler())->update($req, $res));
     
-    Route::get('/settings', [\App\Handlers\Settings\SettingsHandler::class, 'index']);
-    Route::put('/settings', [\App\Handlers\Settings\SettingsHandler::class, 'update']);
+    // Plugins
+    Route::get('/plugins', fn(Request $req, Response $res) => (new \App\Handlers\Settings\PluginHandler())->index($req, $res));
+    Route::get('/plugins/{id}', fn(Request $req, Response $res, array $params) => (new \App\Handlers\Settings\PluginHandler())->show($req, $res, $params));
+    Route::post('/plugins/activate', fn(Request $req, Response $res) => (new \App\Handlers\Settings\PluginHandler())->activate($req, $res));
+    Route::post('/plugins/deactivate', fn(Request $req, Response $res) => (new \App\Handlers\Settings\PluginHandler())->deactivate($req, $res));
+    Route::get('/plugins/{id}/settings', fn(Request $req, Response $res, array $params) => (new \App\Handlers\Settings\PluginHandler())->getSettings($req, $res, $params));
+    Route::put('/plugins/{id}/settings', fn(Request $req, Response $res, array $params) => (new \App\Handlers\Settings\PluginHandler())->updateSettings($req, $res, $params));
+    Route::post('/plugins/upload', fn(Request $req, Response $res) => (new \App\Handlers\Settings\PluginUploadHandler())->upload($req, $res));
+    Route::delete('/plugins/{id}', fn(Request $req, Response $res, array $params) => (new \App\Handlers\Settings\PluginUploadHandler())->delete($req, $res, $params));
 
 });
 

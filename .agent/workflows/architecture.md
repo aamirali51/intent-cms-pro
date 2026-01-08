@@ -233,6 +233,29 @@ updated_at TIMESTAMP
 
 ---
 
+## 🔌 Plugin System (v0.9.0)
+
+Intent CMS Pro features a hybrid plugin system that supports both procedural and Attribute-based development.
+
+### 1. Lifecycle & Management
+- **Interface**: `App\Interfaces\PluginInterface` (activate/deactivate hooks).
+- **Activation**: Managed via `/admin/plugins.php`. State stored in `cms_settings` (`active_plugins`).
+- **Discovery**: `PluginLoader::loadActivePlugins()` called during bootstrap.
+
+### 2. Extensibility Pillars
+- **Hooks**: Modern `Hooks` service (`add_action`, `add_filter`).
+- **UI Hooks**: `cms.admin.menu` filter for sidebar items; `cms.admin.head` and `cms.admin.footer` for assets.
+- **Routing**: Active plugins can register custom routes via `plugins/{name}/routes.php`.
+- **Composer**: Automatic loading of `plugins/{name}/vendor/autoload.php`.
+
+### 3. Creating a Plugin
+1. Create `plugins/my-plugin/Plugin.php`.
+2. Use `#[Plugin]` attribute on the class.
+3. (Optional) Implement `PluginInterface` for activation logic.
+4. (Optional) Create `routes.php` for custom API endpoints.
+
+---
+
 ## 🎨 Design System
 
 | Token | Value |

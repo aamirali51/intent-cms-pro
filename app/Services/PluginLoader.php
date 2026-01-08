@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Attributes\Plugin;
 use App\Attributes\Action;
 use App\Attributes\Filter;
+use App\Interfaces\PluginInterface;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -14,85 +15,241 @@ use ReflectionMethod;
  * Plugin Loader Service
  * 
  * Discovers and loads plugins using PHP 8 Attributes.
- * Automatically registers action and filter hooks from decorated methods.
+ * Handles lifecycle (activation/deactivation), routing, and Composer autoloading.
  */
 final class PluginLoader
 {
-    /** @var array<string, array{class: string, instance: object, metadata: Plugin}> */
+    /** @var array<string, array{class: string, instance: object|null, metadata: Plugin, path: string, isActive: bool}> */
     private static array $plugins = [];
 
     /** @var array<string, array{hook: string, callback: callable, priority: int, source: string}> */
     private static array $registeredHooks = [];
 
     /**
-     * Discover and load all plugins from a directory
+     * Load all active plugins during bootstrap
      */
-    public static function discover(string $directory): void
+    public static function loadActivePlugins(): void
     {
-        if (!is_dir($directory)) {
+        $activePlugins = self::getActivePluginsList();
+        $pluginsDir = dirname(__DIR__, 2) . '/plugins';
+
+        if (!is_dir($pluginsDir)) {
             return;
         }
 
-        $pluginDirs = glob($directory . '/*/');
-        if ($pluginDirs === false) {
-            return;
-        }
-
-        foreach ($pluginDirs as $pluginDir) {
-            self::loadPluginFromDirectory($pluginDir);
+        foreach ($activePlugins as $pluginDirName) {
+            $path = $pluginsDir . '/' . $pluginDirName;
+            if (is_dir($path)) {
+                self::loadPlugin($path, true);
+            }
         }
     }
 
     /**
-     * Load a plugin from a directory
+     * Discover all available plugins (active or inactive)
+     * Used for the Admin UI
      */
-    private static function loadPluginFromDirectory(string $directory): void
+    public static function discoverAll(): void
     {
-        // Look for Plugin.php or plugin.php
-        $pluginFile = $directory . 'Plugin.php';
+        $pluginsDir = dirname(__DIR__, 2) . '/plugins';
+        if (!is_dir($pluginsDir)) {
+            return;
+        }
+
+        $dirs = glob($pluginsDir . '/*', GLOB_ONLYDIR);
+        if ($dirs === false) {
+            return;
+        }
+
+        $activePlugins = self::getActivePluginsList();
+
+        foreach ($dirs as $path) {
+            $dirName = basename($path);
+            $isActive = in_array($dirName, $activePlugins, true);
+            
+            // If it's already loaded (because it's active), just update the list
+            // Otherwise, load it in "metadata only" mode (don't register hooks)
+            self::loadPlugin($path, $isActive, !$isActive);
+        }
+    }
+
+    /**
+     * Load a single plugin
+     * 
+     * @param string $directory Full path to plugin directory
+     * @param bool $registerHooks Whether to register actions/filters/routes
+     * @param bool $metadataOnly If true, only reads #[Plugin] attribute, doesn't instantiate
+     */
+    private static function loadPlugin(string $directory, bool $registerHooks = true, bool $metadataOnly = false): void
+    {
+        // 1. Composer Autoloading (The "Library" Pillar)
+        if ($registerHooks && file_exists($directory . '/vendor/autoload.php')) {
+            require_once $directory . '/vendor/autoload.php';
+        }
+
+        // 2. Load Main Plugin File
+        $pluginFile = $directory . '/Plugin.php';
         if (!file_exists($pluginFile)) {
-            $pluginFile = $directory . 'plugin.php';
+            $pluginFile = $directory . '/plugin.php';
         }
         
         if (!file_exists($pluginFile)) {
             return;
         }
 
+        // We use require_once to ensure classes are defined
         require_once $pluginFile;
 
-        // Find declared classes in the file
+        // 3. Find Plugin Class
         $declaredClasses = get_declared_classes();
-        
+        $pluginClass = null;
+        $pluginAttr = null;
+
+        // Scan recent classes to find one with #[Plugin]
+        // (Optimization: Reverse scan or specific namespace matching could be faster)
         foreach ($declaredClasses as $className) {
-            if (!class_exists($className)) {
+            if (!class_exists($className, false)) {
                 continue;
             }
             
             $reflection = new ReflectionClass($className);
+            
+            // Check if this class belongs to the file we just loaded
+            // This prevents re-scanning the whole system
+            $file = $reflection->getFileName();
+            if ($file === false || realpath($file) !== realpath($pluginFile)) {
+                continue;
+            }
+
             $attributes = $reflection->getAttributes(Plugin::class);
-            
-            if (empty($attributes)) {
-                continue;
+            if (!empty($attributes)) {
+                $pluginClass = $className;
+                $pluginAttr = $attributes[0]->newInstance();
+                break;
             }
+        }
 
-            /** @var Plugin $pluginAttr */
-            $pluginAttr = $attributes[0]->newInstance();
-            
-            if (!$pluginAttr->enabled) {
-                continue;
-            }
+        if (!$pluginClass || !$pluginAttr) {
+            return;
+        }
 
-            // Create plugin instance
-            $instance = new $className();
-            
-            self::$plugins[$className] = [
-                'class' => $className,
-                'instance' => $instance,
+        // 4. Store Metadata
+        $dirName = basename($directory);
+        
+        if (!isset(self::$plugins[$dirName])) {
+            self::$plugins[$dirName] = [
+                'class' => $pluginClass,
+                'instance' => null,
                 'metadata' => $pluginAttr,
+                'path' => $directory,
+                'isActive' => $registerHooks,
             ];
+        }
 
-            // Register hooks from methods
-            self::registerHooksFromClass($reflection, $instance, $pluginAttr->name);
+        // If we only wanted metadata, stop here
+        if ($metadataOnly) {
+            return;
+        }
+
+        // 5. Instantiate & Register Hooks
+        $instance = new $pluginClass();
+        self::$plugins[$dirName]['instance'] = $instance;
+        
+        if ($registerHooks) {
+            self::registerHooksFromClass(new ReflectionClass($pluginClass), $instance, $pluginAttr->name);
+
+            // 6. Custom Routing (The "API" Pillar)
+            if (file_exists($directory . '/routes.php')) {
+                require_once $directory . '/routes.php';
+            }
+        }
+    }
+
+    /**
+     * Activate a plugin
+     */
+    public static function activate(string $pluginDirName): void
+    {
+        $activePlugins = self::getActivePluginsList();
+        if (in_array($pluginDirName, $activePlugins, true)) {
+            return;
+        }
+
+        // Load to get instance
+        $pluginsDir = dirname(__DIR__, 2) . '/plugins';
+        $path = $pluginsDir . '/' . $pluginDirName;
+        
+        self::loadPlugin($path, true);
+        
+        if (isset(self::$plugins[$pluginDirName]['instance'])) {
+            $instance = self::$plugins[$pluginDirName]['instance'];
+            if ($instance instanceof PluginInterface) {
+                $instance->activate();
+            }
+        }
+
+        // Save to DB
+        $activePlugins[] = $pluginDirName;
+        self::saveActivePluginsList($activePlugins);
+    }
+
+    /**
+     * Deactivate a plugin
+     */
+    public static function deactivate(string $pluginDirName): void
+    {
+        $activePlugins = self::getActivePluginsList();
+        if (!in_array($pluginDirName, $activePlugins, true)) {
+            return;
+        }
+
+        // Load to get instance (if not loaded)
+        if (!isset(self::$plugins[$pluginDirName]['instance'])) {
+             $pluginsDir = dirname(__DIR__, 2) . '/plugins';
+             self::loadPlugin($pluginsDir . '/' . $pluginDirName, true);
+        }
+
+        if (isset(self::$plugins[$pluginDirName]['instance'])) {
+            $instance = self::$plugins[$pluginDirName]['instance'];
+            if ($instance instanceof PluginInterface) {
+                $instance->deactivate();
+            }
+        }
+
+        // Remove from DB
+        $activePlugins = array_values(array_diff($activePlugins, [$pluginDirName]));
+        self::saveActivePluginsList($activePlugins);
+    }
+
+    /**
+     * Get list of active plugins from DB
+     * @return array<int, string>
+     */
+    private static function getActivePluginsList(): array
+    {
+        try {
+            $setting = site_setting('active_plugins', '[]');
+            $list = json_decode($setting, true);
+            return is_array($list) ? $list : [];
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Save list of active plugins to DB
+     * @param array<int, string> $list
+     */
+    private static function saveActivePluginsList(array $list): void
+    {
+        $json = json_encode(array_unique($list));
+        
+        // Upsert logic manually
+        $exists = db()->raw('SELECT id FROM cms_settings WHERE `key` = ?', ['active_plugins']);
+        if (!empty($exists)) {
+            db()->raw('UPDATE cms_settings SET `value` = ?, updated_at = NOW() WHERE `key` = ?', [$json, 'active_plugins']);
+        } else {
+            db()->raw('INSERT INTO cms_settings (`key`, `value`, created_at, updated_at) VALUES (?, ?, NOW(), NOW())', ['active_plugins', $json]);
         }
     }
 
@@ -148,38 +305,9 @@ final class PluginLoader
     }
 
     /**
-     * Register a plugin class directly (for manual registration)
-     */
-    public static function register(string $className): void
-    {
-        if (!class_exists($className)) {
-            return;
-        }
-
-        $reflection = new ReflectionClass($className);
-        $attributes = $reflection->getAttributes(Plugin::class);
-        
-        if (empty($attributes)) {
-            return;
-        }
-
-        /** @var Plugin $pluginAttr */
-        $pluginAttr = $attributes[0]->newInstance();
-        $instance = new $className();
-        
-        self::$plugins[$className] = [
-            'class' => $className,
-            'instance' => $instance,
-            'metadata' => $pluginAttr,
-        ];
-
-        self::registerHooksFromClass($reflection, $instance, $pluginAttr->name);
-    }
-
-    /**
      * Get all loaded plugins
      * 
-     * @return array<string, array{class: string, instance: object, metadata: Plugin}>
+     * @return array<string, array{class: string, instance: object|null, metadata: Plugin, path: string, isActive: bool}>
      */
     public static function getPlugins(): array
     {
