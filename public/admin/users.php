@@ -198,18 +198,46 @@ ob_start();
         async deleteUser(id, btn) {
             const name = btn.dataset.name || 'this user';
             const email = btn.dataset.email || '';
-            if (!confirm(`Are you sure you want to delete user "${name}" (${email})?`)) return;
-            try {
-                const res = await this.api(`/users/${id}`, 'DELETE');
-                if (res && res.error) {
-                    this.showToast(res.error, 'error');
-                } else {
-                    this.renderUsers();
-                    this.showToast('User deleted successfully', 'success');
-                }
-            } catch (e) {
-                this.showToast('Error deleting user: ' + e.message, 'error');
-            }
+            
+            // Use custom modal instead of native confirm() which can be suppressed
+            this.showModal({
+                title: 'Delete User',
+                body: `
+                    <div class="text-center py-4">
+                        <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="material-icons-round text-3xl text-red-500">warning</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Are you sure?</h3>
+                        <p class="text-gray-500 dark:text-gray-400">
+                            You are about to delete user <strong class="text-gray-900 dark:text-white">"${name}"</strong>
+                            <br><span class="text-sm">(${email})</span>
+                        </p>
+                        <p class="text-sm text-red-500 mt-3">This action cannot be undone.</p>
+                    </div>
+                `,
+                actions: [
+                    { text: 'Cancel', onClick: () => this.closeModal() },
+                    { 
+                        text: 'Delete User', 
+                        class: 'inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto sm:ml-3', 
+                        onClick: async () => {
+                            this.closeModal();
+                            try {
+                                const res = await this.api(`/users/${id}`, 'DELETE');
+                                if (res && res.error) {
+                                    this.showToast(res.error, 'error');
+                                } else {
+                                    this.renderUsers();
+                                    this.showToast('User deleted successfully', 'success');
+                                }
+                            } catch (e) {
+                                this.showToast('Error deleting user: ' + e.message, 'error');
+                            }
+                        },
+                        close: false
+                    }
+                ]
+            });
         }
     });
 
