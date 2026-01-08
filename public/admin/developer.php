@@ -401,27 +401,27 @@ $registeredHooks = PluginLoader::getRegisteredHooks();
                     <div class="space-y-3">
                         <div class="flex items-center gap-3 text-sm">
                             <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
-                            <code class="text-gray-600 dark:text-gray-300">/api/v1/posts</code>
+                            <code class="text-gray-600 dark:text-gray-300">/api/posts</code>
                             <span class="text-gray-400 text-xs">List all posts</span>
                         </div>
                         <div class="flex items-center gap-3 text-sm">
                             <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
-                            <code class="text-gray-600 dark:text-gray-300">/api/v1/posts/{id}</code>
+                            <code class="text-gray-600 dark:text-gray-300">/api/posts/{id}</code>
                             <span class="text-gray-400 text-xs">Get single post</span>
                         </div>
                         <div class="flex items-center gap-3 text-sm">
                             <span class="px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded text-xs font-mono">POST</span>
-                            <code class="text-gray-600 dark:text-gray-300">/api/v1/posts</code>
+                            <code class="text-gray-600 dark:text-gray-300">/api/posts</code>
                             <span class="text-gray-400 text-xs">Create post</span>
                         </div>
                         <div class="flex items-center gap-3 text-sm">
                             <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 rounded text-xs font-mono">PUT</span>
-                            <code class="text-gray-600 dark:text-gray-300">/api/v1/posts/{id}</code>
+                            <code class="text-gray-600 dark:text-gray-300">/api/posts/{id}</code>
                             <span class="text-gray-400 text-xs">Update post</span>
                         </div>
                         <div class="flex items-center gap-3 text-sm">
                             <span class="px-2 py-0.5 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded text-xs font-mono">DELETE</span>
-                            <code class="text-gray-600 dark:text-gray-300">/api/v1/posts/{id}</code>
+                            <code class="text-gray-600 dark:text-gray-300">/api/posts/{id}</code>
                             <span class="text-gray-400 text-xs">Delete post</span>
                         </div>
                     </div>
@@ -436,13 +436,28 @@ $registeredHooks = PluginLoader::getRegisteredHooks();
                     <div class="space-y-3">
                         <div class="flex items-center gap-3 text-sm">
                             <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
-                            <code class="text-gray-600 dark:text-gray-300">/api/v1/pages</code>
+                            <code class="text-gray-600 dark:text-gray-300">/api/pages</code>
                             <span class="text-gray-400 text-xs">List all pages</span>
                         </div>
                         <div class="flex items-center gap-3 text-sm">
                             <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
-                            <code class="text-gray-600 dark:text-gray-300">/api/v1/pages/{id}</code>
+                            <code class="text-gray-600 dark:text-gray-300">/api/pages/{id}</code>
                             <span class="text-gray-400 text-xs">Get single page</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded text-xs font-mono">POST</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/pages</code>
+                            <span class="text-gray-400 text-xs">Create page</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 rounded text-xs font-mono">PUT</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/pages/{id}</code>
+                            <span class="text-gray-400 text-xs">Update page</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded text-xs font-mono">DELETE</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/pages/{id}</code>
+                            <span class="text-gray-400 text-xs">Delete page</span>
                         </div>
                     </div>
                 </div>
@@ -450,14 +465,69 @@ $registeredHooks = PluginLoader::getRegisteredHooks();
                 <!-- Media Endpoints -->
                 <div class="p-5">
                     <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                        <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+                        <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
                         Media
                     </h3>
                     <div class="space-y-3">
                         <div class="flex items-center gap-3 text-sm">
                             <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
-                            <code class="text-gray-600 dark:text-gray-300">/api/v1/media</code>
+                            <code class="text-gray-600 dark:text-gray-300">/api/media</code>
                             <span class="text-gray-400 text-xs">List media files</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded text-xs font-mono">POST</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/media/upload</code>
+                            <span class="text-gray-400 text-xs">Upload file (multipart/form-data)</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 rounded text-xs font-mono">PUT</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/media/{id}</code>
+                            <span class="text-gray-400 text-xs">Update media metadata</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded text-xs font-mono">DELETE</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/media/{id}</code>
+                            <span class="text-gray-400 text-xs">Delete media file</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded text-xs font-mono">POST</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/media/bulk-delete</code>
+                            <span class="text-gray-400 text-xs">Delete multiple files</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded text-xs font-mono">POST</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/media/move</code>
+                            <span class="text-gray-400 text-xs">Move files to folder</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Media Folders Endpoints -->
+                <div class="p-5">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-orange-300 rounded-full"></span>
+                        Media Folders
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/media/folders</code>
+                            <span class="text-gray-400 text-xs">List all folders</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded text-xs font-mono">POST</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/media/folders</code>
+                            <span class="text-gray-400 text-xs">Create folder</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 rounded text-xs font-mono">PUT</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/media/folders/{id}</code>
+                            <span class="text-gray-400 text-xs">Rename folder</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded text-xs font-mono">DELETE</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/media/folders/{id}</code>
+                            <span class="text-gray-400 text-xs">Delete folder</span>
                         </div>
                     </div>
                 </div>
@@ -497,22 +567,117 @@ $registeredHooks = PluginLoader::getRegisteredHooks();
                     </div>
                 </div>
 
-                <!-- System Endpoints -->
+                <!-- Settings Endpoints -->
                 <div class="p-5">
                     <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                        <span class="w-2 h-2 bg-gray-500 rounded-full"></span>
-                        System
+                        <span class="w-2 h-2 bg-slate-500 rounded-full"></span>
+                        Settings
                     </h3>
                     <div class="space-y-3">
                         <div class="flex items-center gap-3 text-sm">
                             <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
-                            <code class="text-gray-600 dark:text-gray-300">/api/v1/system/info</code>
-                            <span class="text-gray-400 text-xs">System information</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/settings</code>
+                            <span class="text-gray-400 text-xs">Get all site settings</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 rounded text-xs font-mono">PUT</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/settings</code>
+                            <span class="text-gray-400 text-xs">Update site settings</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plugins Endpoints -->
+                <div class="p-5">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                        Plugins
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/plugins</code>
+                            <span class="text-gray-400 text-xs">List all plugins</span>
                         </div>
                         <div class="flex items-center gap-3 text-sm">
                             <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
-                            <code class="text-gray-600 dark:text-gray-300">/api/v1/users</code>
-                            <span class="text-gray-400 text-xs">List users (admin only)</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/plugins/{id}</code>
+                            <span class="text-gray-400 text-xs">Get plugin details</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded text-xs font-mono">POST</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/plugins/activate</code>
+                            <span class="text-gray-400 text-xs">Activate plugin</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded text-xs font-mono">POST</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/plugins/deactivate</code>
+                            <span class="text-gray-400 text-xs">Deactivate plugin</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/plugins/{id}/settings</code>
+                            <span class="text-gray-400 text-xs">Get plugin settings</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 rounded text-xs font-mono">PUT</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/plugins/{id}/settings</code>
+                            <span class="text-gray-400 text-xs">Update plugin settings</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded text-xs font-mono">POST</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/plugins/upload</code>
+                            <span class="text-gray-400 text-xs">Upload plugin ZIP</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded text-xs font-mono">DELETE</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/plugins/{id}</code>
+                            <span class="text-gray-400 text-xs">Delete plugin</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categories Endpoints -->
+                <div class="p-5">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-teal-500 rounded-full"></span>
+                        Categories
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/categories</code>
+                            <span class="text-gray-400 text-xs">List all categories</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System/Auth Endpoints -->
+                <div class="p-5">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-gray-500 rounded-full"></span>
+                        System & Auth
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/user</code>
+                            <span class="text-gray-400 text-xs">Get current authenticated user</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/dashboard/stats</code>
+                            <span class="text-gray-400 text-xs">Dashboard statistics</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/csrf-token</code>
+                            <span class="text-gray-400 text-xs">Get CSRF token (public)</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/health</code>
+                            <span class="text-gray-400 text-xs">Health check (public)</span>
                         </div>
                     </div>
                 </div>
