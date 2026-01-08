@@ -35,6 +35,27 @@ if ($basePath === '/') $basePath = '';
     <title><?= isset($title) ? $title . ' - ' : '' ?>Intent CMS</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <!-- Tailwind CSS via CDN - Full library with all utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#8b5cf6',
+                        primaryHover: '#7c3aed',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- Local CSS for custom styles -->
     <link rel="stylesheet" href="<?= $basePath ?>/assets/css/app.css">
 
     <!-- Plugin Assets Hook -->
