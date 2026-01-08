@@ -37,7 +37,7 @@ final class PluginManager
     /** @var array<int, AdminMenuItem> */
     private array $menuItems = [];
 
-    /** @var array<int, PluginAsset> */
+    /** @var array<int, PluginAssetWithPath> */
     private array $assets = [];
 
     private bool $discovered = false;
@@ -389,7 +389,7 @@ final class PluginManager
         $this->saveActivePluginIds($active);
 
         $info->isActive = true;
-        $info->instance = $instance ?? null;
+        $info->instance = $instance;
 
         return true;
     }
@@ -536,7 +536,11 @@ final class PluginManager
         try {
             $json = site_setting('active_plugins', '[]');
             $list = json_decode($json, true);
-            return is_array($list) ? $list : [];
+            if (!is_array($list)) {
+                return [];
+            }
+            // Filter to only string values to match return type array<int, string>
+            return array_values(array_filter($list, 'is_string'));
         } catch (\Throwable $e) {
             return [];
         }

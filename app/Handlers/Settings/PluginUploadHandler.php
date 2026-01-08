@@ -16,12 +16,10 @@ use ZipArchive;
 class PluginUploadHandler
 {
     private string $pluginsDir;
-    private string $tempDir;
 
     public function __construct()
     {
         $this->pluginsDir = dirname(__DIR__, 2) . '/plugins';
-        $this->tempDir = sys_get_temp_dir();
     }
 
     /**
@@ -30,13 +28,23 @@ class PluginUploadHandler
     public function upload(Request $req, Response $res): Response
     {
         // Check for uploaded file
-        if (!isset($_FILES['plugin']) || $_FILES['plugin']['error'] !== UPLOAD_ERR_OK) {
-            return $res->json(['error' => 'No file uploaded or upload error'], 400);
+        $pluginFile = $_FILES['plugin'] ?? null;
+        if (!is_array($pluginFile)) {
+            return $res->json(['error' => 'No file uploaded'], 400);
+        }
+        
+        $errorCode = isset($pluginFile['error']) && is_int($pluginFile['error']) ? $pluginFile['error'] : UPLOAD_ERR_NO_FILE;
+        if ($errorCode !== UPLOAD_ERR_OK) {
+            return $res->json(['error' => 'Upload error'], 400);
         }
 
-        $file = $_FILES['plugin'];
-        $filename = $file['name'];
-        $tmpPath = $file['tmp_name'];
+        $filename = isset($pluginFile['name']) && is_string($pluginFile['name']) ? $pluginFile['name'] : '';
+        $tmpPath = isset($pluginFile['tmp_name']) && is_string($pluginFile['tmp_name']) ? $pluginFile['tmp_name'] : '';
+        $fileSize = isset($pluginFile['size']) && is_int($pluginFile['size']) ? $pluginFile['size'] : 0;
+
+        if ($filename === '' || $tmpPath === '') {
+            return $res->json(['error' => 'Invalid file upload'], 400);
+        }
 
         // Validate ZIP file
         if (!str_ends_with(strtolower($filename), '.zip')) {
@@ -44,7 +52,7 @@ class PluginUploadHandler
         }
 
         // Check file size (max 10MB)
-        if ($file['size'] > 10 * 1024 * 1024) {
+        if ($fileSize > 10 * 1024 * 1024) {
             return $res->json(['error' => 'File too large. Maximum 10MB allowed'], 400);
         }
 
@@ -55,28 +63,37 @@ class PluginUploadHandler
         }
 
         // Find Plugin.php in the archive
-        $pluginFile = null;
+        $pluginFileInZip = null;
         $rootFolder = null;
 
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $name = $zip->getNameIndex($i);
+            if ($name === false) {
+                continue;
+            }
+            
             if (preg_match('#^([^/]+)/Plugin\.php$#i', $name, $matches)) {
-                $pluginFile = $name;
+                $pluginFileInZip = $name;
                 $rootFolder = $matches[1];
                 break;
             }
-            if (strcasecmp(basename($name), 'Plugin.php') === 0 && substr_count($name, '/') <= 1) {
-                $pluginFile = $name;
-                $rootFolder = dirname($name);
-                if ($rootFolder === '.') {
+            
+            $baseName = basename($name);
+            if (strcasecmp($baseName, 'Plugin.php') === 0 && substr_count($name, '/') <= 1) {
+                $pluginFileInZip = $name;
+                $dirName = dirname($name);
+                if ($dirName === '.') {
                     // Plugin.php at root - use filename without .zip as folder
-                    $rootFolder = pathinfo($filename, PATHINFO_FILENAME);
+                    $pathInfo = pathinfo($filename, PATHINFO_FILENAME);
+                    $rootFolder = is_string($pathInfo) ? $pathInfo : 'plugin-' . time();
+                } else {
+                    $rootFolder = $dirName;
                 }
                 break;
             }
         }
 
-        if ($pluginFile === null) {
+        if ($pluginFileInZip === null || $rootFolder === null) {
             $zip->close();
             return $res->json(['error' => 'Invalid plugin: Plugin.php not found'], 400);
         }
@@ -105,15 +122,19 @@ class PluginUploadHandler
         // Extract files
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $name = $zip->getNameIndex($i);
+            if ($name === false) {
+                continue;
+            }
             
             // Handle root folder prefix
-            if (str_starts_with($name, $rootFolder . '/')) {
-                $relativePath = substr($name, strlen($rootFolder) + 1);
+            $prefix = $rootFolder . '/';
+            if (str_starts_with($name, $prefix)) {
+                $relativePath = substr($name, strlen($prefix));
             } else {
                 $relativePath = $name;
             }
 
-            if (empty($relativePath)) {
+            if ($relativePath === '' || $relativePath === false) {
                 continue;
             }
 
@@ -162,10 +183,12 @@ class PluginUploadHandler
 
     /**
      * Delete a plugin
+     * 
+     * @param array<string, string> $params
      */
     public function delete(Request $req, Response $res, array $params): Response
     {
-        $pluginId = $params['id'] ?? '';
+        $pluginId = isset($params['id']) && is_string($params['id']) ? $params['id'] : '';
 
         if (empty($pluginId)) {
             return $res->json(['error' => 'Plugin ID required'], 400);
@@ -202,15 +225,18 @@ class PluginUploadHandler
     private function sanitizeFolderName(string $name): string
     {
         // Remove extension if present
-        $name = pathinfo($name, PATHINFO_FILENAME) ?: $name;
+        $pathResult = pathinfo($name, PATHINFO_FILENAME);
+        $name = is_string($pathResult) && $pathResult !== '' ? $pathResult : $name;
         
         // Convert to lowercase, replace spaces/underscores with dashes
         $name = strtolower($name);
-        $name = preg_replace('/[\s_]+/', '-', $name);
-        $name = preg_replace('/[^a-z0-9\-]/', '', $name);
+        $replaced = preg_replace('/[\s_]+/', '-', $name);
+        $name = $replaced !== null ? $replaced : $name;
+        $replaced = preg_replace('/[^a-z0-9\-]/', '', $name);
+        $name = $replaced !== null ? $replaced : $name;
         $name = trim($name, '-');
         
-        return $name ?: 'plugin-' . time();
+        return $name !== '' ? $name : 'plugin-' . time();
     }
 
     /**
@@ -244,3 +270,4 @@ class PluginUploadHandler
         return rmdir($dir);
     }
 }
+

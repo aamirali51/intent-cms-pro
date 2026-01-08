@@ -51,10 +51,12 @@ class PluginHandler
 
     /**
      * Get single plugin details
+     * 
+     * @param array<string, string> $params
      */
     public function show(Request $req, Response $res, array $params): Response
     {
-        $id = $params['id'] ?? '';
+        $id = isset($params['id']) && is_string($params['id']) ? $params['id'] : '';
         $manager = PluginManager::getInstance();
         $info = $manager->get($id);
 
@@ -99,6 +101,12 @@ class PluginHandler
         try {
             $manager = PluginManager::getInstance();
             $manager->activate($id);
+            
+            // Fire hook
+            if (function_exists('do_action')) {
+                do_action('cms.plugin.activated', $id);
+            }
+            
             return $res->json(['message' => 'Plugin activated successfully']);
         } catch (\Throwable $e) {
             return $res->json(['error' => $e->getMessage()], 400);
@@ -120,6 +128,12 @@ class PluginHandler
         try {
             $manager = PluginManager::getInstance();
             $manager->deactivate($id);
+            
+            // Fire hook
+            if (function_exists('do_action')) {
+                do_action('cms.plugin.deactivated', $id);
+            }
+            
             return $res->json(['message' => 'Plugin deactivated successfully']);
         } catch (\Throwable $e) {
             return $res->json(['error' => $e->getMessage()], 400);
@@ -128,10 +142,12 @@ class PluginHandler
 
     /**
      * Get plugin settings
+     * 
+     * @param array<string, string> $params
      */
     public function getSettings(Request $req, Response $res, array $params): Response
     {
-        $id = $params['id'] ?? '';
+        $id = isset($params['id']) && is_string($params['id']) ? $params['id'] : '';
         $manager = PluginManager::getInstance();
         $info = $manager->get($id);
 
@@ -158,10 +174,12 @@ class PluginHandler
 
     /**
      * Update plugin settings
+     * 
+     * @param array<string, string> $params
      */
     public function updateSettings(Request $req, Response $res, array $params): Response
     {
-        $id = $params['id'] ?? '';
+        $id = isset($params['id']) && is_string($params['id']) ? $params['id'] : '';
         $manager = PluginManager::getInstance();
         $info = $manager->get($id);
 
@@ -175,7 +193,14 @@ class PluginHandler
         }
 
         foreach ($data as $key => $value) {
-            $manager->setSetting($id, $key, $value);
+            if (is_string($key)) {
+                $manager->setSetting($id, $key, $value);
+            }
+        }
+
+        // Fire hook
+        if (function_exists('do_action')) {
+            do_action('cms.plugin.settings_saved', $id, $data);
         }
 
         return $res->json(['message' => 'Settings saved']);

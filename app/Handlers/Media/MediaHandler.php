@@ -19,8 +19,10 @@ class MediaHandler
         try {
             $type = $req->get('type');
             $search = $req->get('search');
-            $page = max(1, (int) ($req->get('page') ?? 1));
-            $limit = max(1, min(100, (int) ($req->get('limit') ?? 50)));
+            $pageRaw = $req->get('page');
+            $limitRaw = $req->get('limit');
+            $page = max(1, is_numeric($pageRaw) ? (int) $pageRaw : 1);
+            $limit = max(1, min(100, is_numeric($limitRaw) ? (int) $limitRaw : 50));
             $offset = ($page - 1) * $limit;
             
             // Base SQL
@@ -57,8 +59,10 @@ class MediaHandler
             $lastPage = ceil($total / $limit);
 
             // Sort parameters
-            $sortColumn = $req->get('sort') ?? 'created_at';
-            $sortOrder = strtoupper($req->get('order') ?? 'DESC');
+            $sortColumnRaw = $req->get('sort');
+            $sortColumn = is_string($sortColumnRaw) ? $sortColumnRaw : 'created_at';
+            $sortOrderRaw = $req->get('order');
+            $sortOrder = is_string($sortOrderRaw) ? strtoupper($sortOrderRaw) : 'DESC';
             
             // Whitelist allowed sort columns and orders
             $allowedColumns = ['created_at', 'filename', 'size'];
@@ -77,6 +81,11 @@ class MediaHandler
             
             // Execute
             $files = db()->raw($sql, $params);
+            
+            // Filter: Allow plugins to modify media list
+            if (function_exists('apply_filters')) {
+                $files = apply_filters('cms.api.media', $files);
+            }
             
             return $res->json([
                 'data' => $files,
@@ -182,6 +191,11 @@ class MediaHandler
                 }
             }
             
+            // Fire hook
+            if (function_exists('do_action') && $newFile) {
+                do_action('cms.media.uploaded', (int) $lastId, $newFile);
+            }
+            
             return $res->json($newFile, 201);
 
         } catch (\Throwable $e) {
@@ -226,6 +240,11 @@ class MediaHandler
 
             // Delete from DB
             db()->table('cms_media')->where('id', $id)->delete();
+
+            // Fire hook
+            if (function_exists('do_action')) {
+                do_action('cms.media.deleted', $id, $file);
+            }
 
             return $res->json(['success' => true]);
         } catch (\Throwable $e) {
@@ -477,8 +496,12 @@ class MediaHandler
      */
     public static function createFolder(Request $req, Response $res): Response
     {
-        $data = $req->json() ?? [];
-        $name = trim($data['name'] ?? '');
+        $data = $req->json();
+        if (!is_array($data)) {
+            return $res->json(['error' => 'Invalid request body'], 400);
+        }
+        $nameRaw = $data['name'] ?? '';
+        $name = is_string($nameRaw) ? trim($nameRaw) : '';
         $parentId = $data['parent_id'] ?? null;
         if ($parentId === 'null' || $parentId === '') $parentId = null;
 
@@ -489,7 +512,14 @@ class MediaHandler
                 'name' => $name,
                 'parent_id' => $parentId
             ]);
-            return $res->json(['success' => true]);
+            $folderId = db()->connection()->lastInsertId();
+            
+            // Fire hook
+            if (function_exists('do_action')) {
+                do_action('cms.folder.created', (int) $folderId, $name, $parentId);
+            }
+            
+            return $res->json(['success' => true, 'id' => $folderId]);
         } catch (\Throwable $e) {
             error_log('MediaHandler::createFolder Error: ' . $e->getMessage());
             return $res->json(['error' => 'Failed to create folder: ' . $e->getMessage()], 500);
@@ -498,14 +528,25 @@ class MediaHandler
 
     /**
      * Delete Folder
+     * 
+     * @param array<string, string> $params
      */
     public static function deleteFolder(Request $req, Response $res, array $params): Response
     {
-        $id = $params['id'] ?? null;
-        if (!$id) return $res->json(['error' => 'ID required'], 400);
+        $idParam = $params['id'] ?? null;
+        if ($idParam === null || $idParam === '') {
+            return $res->json(['error' => 'ID required'], 400);
+        }
+        $id = is_numeric($idParam) ? (int) $idParam : 0;
 
         try {
-           db()->table('cms_media_folders')->delete($id);
+           db()->table('cms_media_folders')->where('id', $id)->delete();
+           
+           // Fire hook
+           if (function_exists('do_action')) {
+               do_action('cms.folder.deleted', $id);
+           }
+           
            return $res->json(['success' => true]);
         } catch (\Throwable $e) {
             error_log('MediaHandler::deleteFolder Error: ' . $e->getMessage());
@@ -531,6 +572,12 @@ class MediaHandler
              $params = array_merge([$folderId], $ids);
              
              db()->raw("UPDATE cms_media SET folder_id = ? WHERE id IN ($placeholders)", $params);
+             
+             // Fire hook
+             if (function_exists('do_action')) {
+                 do_action('cms.media.moved', $ids, $folderId);
+             }
+             
              return $res->json(['success' => true]);
         } catch (\Throwable $e) {
              error_log('MediaHandler::moveFiles Error: ' . $e->getMessage());
@@ -540,15 +587,25 @@ class MediaHandler
 
     /**
      * Update Folder (Rename)
+     * 
+     * @param array<string, string> $params
      */
     public static function updateFolder(Request $req, Response $res, array $params): Response
     {
-        $id = $params['id'] ?? null;
-        $data = $req->json() ?? [];
-        $name = trim($data['name'] ?? '');
+        $idParam = $params['id'] ?? null;
+        $data = $req->json();
+        
+        if (!is_array($data)) {
+            return $res->json(['error' => 'Invalid request body'], 400);
+        }
+        
+        $nameRaw = $data['name'] ?? '';
+        $name = is_string($nameRaw) ? trim($nameRaw) : '';
 
-        if (!$id) return $res->json(['error' => 'ID required'], 400);
+        if ($idParam === null || $idParam === '') return $res->json(['error' => 'ID required'], 400);
         if (empty($name)) return $res->json(['error' => 'Name required'], 400);
+        
+        $id = is_numeric($idParam) ? (int) $idParam : 0;
 
         try {
              db()->table('cms_media_folders')->where('id', $id)->update(['name' => $name]);

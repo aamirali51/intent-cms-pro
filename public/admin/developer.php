@@ -120,6 +120,132 @@ $registeredHooks = PluginLoader::getRegisteredHooks();
 }, 5);</code></pre>
                             </div>
                         </div>
+
+                        <!-- cms.page.saved -->
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-start justify-between">
+                                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-primary">cms.page.saved</code>
+                                <span class="text-xs text-gray-400">Action</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Fired after a page is created or updated.</p>
+                            <div class="mt-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                                <pre class="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto"><code>add_action('cms.page.saved', function(int $pageId, array $data): void {
+    error_log("Page {$pageId} was saved");
+}, 10);</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- cms.page.deleted -->
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-start justify-between">
+                                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-primary">cms.page.deleted</code>
+                                <span class="text-xs text-gray-400">Action</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Fired after a page is deleted.</p>
+                            <div class="mt-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                                <pre class="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto"><code>add_action('cms.page.deleted', function(int $pageId, array $data): void {
+    // $data contains the deleted page's data
+}, 10);</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- cms.media.uploaded -->
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-start justify-between">
+                                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-primary">cms.media.uploaded</code>
+                                <span class="text-xs text-gray-400">Action</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Fired after a media file is uploaded.</p>
+                            <div class="mt-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                                <pre class="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto"><code>add_action('cms.media.uploaded', function(int $mediaId, array $file): void {
+    // $file contains path, mime_type, filename, etc.
+}, 10);</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- cms.media.deleted -->
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-start justify-between">
+                                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-primary">cms.media.deleted</code>
+                                <span class="text-xs text-gray-400">Action</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Fired after a media file is deleted.</p>
+                            <div class="mt-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                                <pre class="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto"><code>add_action('cms.media.deleted', function(int $mediaId, array $file): void {
+    // Clean up related data
+}, 10);</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- cms.user.login -->
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-start justify-between">
+                                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-primary">cms.user.login</code>
+                                <span class="text-xs text-gray-400">Action</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Fired after successful user login.</p>
+                            <div class="mt-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                                <pre class="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto"><code>add_action('cms.user.login', function(?array $user): void {
+    // Log login, update last_login timestamp
+}, 10);</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- cms.user.logout -->
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-start justify-between">
+                                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-primary">cms.user.logout</code>
+                                <span class="text-xs text-gray-400">Action</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Fired after user logs out.</p>
+                            <div class="mt-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                                <pre class="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto"><code>add_action('cms.user.logout', function(?array $user): void {
+    // Clear user cache, log activity
+}, 10);</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- cms.settings.saved -->
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-start justify-between">
+                                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-primary">cms.settings.saved</code>
+                                <span class="text-xs text-gray-400">Action</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Fired after site settings are saved.</p>
+                            <div class="mt-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                                <pre class="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto"><code>add_action('cms.settings.saved', function(array $data, int $count): void {
+    // Clear caches, regenerate files
+}, 10);</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- cms.plugin.activated -->
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-start justify-between">
+                                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-primary">cms.plugin.activated</code>
+                                <span class="text-xs text-gray-400">Action</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Fired when a plugin is activated.</p>
+                            <div class="mt-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                                <pre class="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto"><code>add_action('cms.plugin.activated', function(string $pluginId): void {
+    // Log, send notification
+}, 10);</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- cms.plugin.deactivated -->
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-start justify-between">
+                                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-primary">cms.plugin.deactivated</code>
+                                <span class="text-xs text-gray-400">Action</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Fired when a plugin is deactivated.</p>
+                            <div class="mt-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                                <pre class="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto"><code>add_action('cms.plugin.deactivated', function(string $pluginId): void {
+    // Clean up plugin caches
+}, 10);</code></pre>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -176,6 +302,36 @@ $registeredHooks = PluginLoader::getRegisteredHooks();
                                 <pre class="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto"><code>add_filter('cms.post.meta', function(array $meta, int $postId, string $content): array {
     $meta['reading_time'] = ceil(str_word_count($content) / 200);
     return $meta;
+}, 10);</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- cms.api.pages -->
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-start justify-between">
+                                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-purple-600">cms.api.pages</code>
+                                <span class="text-xs text-gray-400">Filter</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Filters the pages array in API responses.</p>
+                            <div class="mt-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                                <pre class="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto"><code>add_filter('cms.api.pages', function(array $pages): array {
+    // Add custom fields or filter sensitive data
+    return $pages;
+}, 10);</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- cms.api.media -->
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-start justify-between">
+                                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-purple-600">cms.api.media</code>
+                                <span class="text-xs text-gray-400">Filter</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Filters the media array in API responses.</p>
+                            <div class="mt-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                                <pre class="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto"><code>add_filter('cms.api.media', function(array $media): array {
+    // Add CDN URLs, watermarks, etc.
+    return $media;
 }, 10);</code></pre>
                             </div>
                         </div>
@@ -297,96 +453,228 @@ $registeredHooks = PluginLoader::getRegisteredHooks();
     <!-- Plugin Development Tab -->
     <div id="tab-plugins" class="doc-content hidden">
         <div class="grid gap-6">
-            <!-- Modern Plugin (Attributes) -->
+            <!-- Introduction -->
+            <div class="bg-gradient-to-r from-primary/5 to-purple-500/5 border border-primary/20 rounded-xl p-6">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">🚀 Attribute-Based Plugin System</h2>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Intent CMS Pro uses PHP 8 attributes for zero-configuration plugins. Simply annotate your class and methods—no XML, YAML, or JSON config files needed.
+                </p>
+            </div>
+
+            <!-- Plugin Interface -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="p-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                        <span class="material-icons-round text-blue-500">integration_instructions</span>
+                        PluginInterface & Lifecycle
+                    </h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Implement <code class="bg-blue-100 dark:bg-blue-900 px-1 rounded">App\Contracts\PluginInterface</code> for lifecycle hooks</p>
+                </div>
+                <div class="p-5">
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                <code class="text-sm font-semibold">boot()</code>
+                            </div>
+                            <p class="text-xs text-gray-500">Called on every request when plugin is active. Register routes, hooks, services.</p>
+                        </div>
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <code class="text-sm font-semibold">activate()</code>
+                            </div>
+                            <p class="text-xs text-gray-500">Called once when activated. Create tables, set defaults.</p>
+                        </div>
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+                                <code class="text-sm font-semibold">deactivate()</code>
+                            </div>
+                            <p class="text-xs text-gray-500">Called when deactivated. Clean temp state, keep user data.</p>
+                        </div>
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                                <code class="text-sm font-semibold">uninstall()</code>
+                            </div>
+                            <p class="text-xs text-gray-500">Called when deleted. Remove all data and tables.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- #[Plugin] Attribute -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
                 <div class="p-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                         <span class="material-icons-round text-green-500">auto_awesome</span>
-                        Modern Plugin (PHP 8 Attributes)
+                        #[Plugin] Attribute
                     </h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Recommended approach for new plugins</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Define plugin metadata on your main class</p>
                 </div>
                 <div class="p-5">
-                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                        Create <code class="bg-gray-100 dark:bg-gray-700 px-1 rounded">plugins/my-plugin/Plugin.php</code>:
-                    </p>
                     <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                        <pre class="text-xs text-gray-100"><code>&lt;?php
-declare(strict_types=1);
+                        <pre class="text-xs text-gray-100"><code>&lt;?php declare(strict_types=1);
 
 namespace Plugins\MyPlugin;
 
 use App\Attributes\Plugin;
-use App\Attributes\Action;
-use App\Attributes\Filter;
+use App\Contracts\PluginInterface;
 
-#[Plugin(
-    name: 'My Awesome Plugin',
-    version: '1.0.0',
-    author: 'Your Name',
-    description: 'Does awesome things'
-)]
-class MyAwesomePlugin
+<span class="text-yellow-300">#[Plugin(</span>
+    <span class="text-purple-300">name:</span> <span class="text-green-300">'My Plugin'</span>,
+    <span class="text-purple-300">version:</span> <span class="text-green-300">'1.0.0'</span>,
+    <span class="text-purple-300">description:</span> <span class="text-green-300">'A great plugin'</span>,
+    <span class="text-purple-300">author:</span> <span class="text-green-300">'Your Name'</span>,
+    <span class="text-purple-300">website:</span> <span class="text-green-300">'https://example.com'</span>,
+    <span class="text-purple-300">minPhpVersion:</span> <span class="text-green-300">'8.2'</span>,
+    <span class="text-purple-300">minCmsVersion:</span> <span class="text-green-300">'0.8.0'</span>,
+    <span class="text-purple-300">tags:</span> [<span class="text-green-300">'seo'</span>, <span class="text-green-300">'analytics'</span>]
+<span class="text-yellow-300">)]</span>
+class Plugin implements PluginInterface
 {
-    #[Filter('cms.the_content', priority: 10)]
-    public function modifyContent(string $content, int $postId): string
-    {
-        return $content . '&lt;!-- Modified by My Plugin --&gt;';
-    }
-
-    #[Action('cms.post.saved', priority: 20)]
-    public function onPostSaved(int $postId, array $data): void
-    {
-        error_log("Post {$postId} saved!");
-    }
+    public function boot(): void { }
+    public function activate(): void { }
+    public function deactivate(): void { }
+    public function uninstall(): void { }
 }</code></pre>
                     </div>
                 </div>
             </div>
 
-            <!-- Legacy Plugin (Procedural) -->
+            <!-- #[PluginSetting] Attribute -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-                <div class="p-5 border-b border-gray-100 dark:border-gray-700">
+                <div class="p-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                        <span class="material-icons-round text-gray-500">code</span>
-                        Legacy Plugin (Procedural)
+                        <span class="material-icons-round text-purple-500">tune</span>
+                        #[PluginSetting] Attribute
                     </h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Simple approach for quick plugins</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Auto-generate settings UI—no forms needed!</p>
                 </div>
                 <div class="p-5">
-                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                        Create <code class="bg-gray-100 dark:bg-gray-700 px-1 rounded">plugins/my-plugin/plugin.php</code>:
-                    </p>
-                    <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                        <pre class="text-xs text-gray-100"><code>&lt;?php
-// plugins/my-plugin/plugin.php
-
-add_filter('cms.the_content', function(string $content, int $postId): string {
-    return $content . '&lt;!-- Modified --&gt;';
-}, 10);
-
-add_action('cms.post.saved', function(int $postId, array $data): void {
-    error_log("Post saved: {$postId}");
-}, 10);</code></pre>
+                    <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto mb-4">
+                        <pre class="text-xs text-gray-100"><code><span class="text-yellow-300">#[PluginSetting(</span>
+    <span class="text-purple-300">name:</span> <span class="text-green-300">'api_key'</span>,
+    <span class="text-purple-300">label:</span> <span class="text-green-300">'API Key'</span>,
+    <span class="text-purple-300">type:</span> <span class="text-green-300">'text'</span>,
+    <span class="text-purple-300">description:</span> <span class="text-green-300">'Your service API key'</span>,
+    <span class="text-purple-300">required:</span> <span class="text-blue-300">true</span>,
+    <span class="text-purple-300">group:</span> <span class="text-green-300">'API Configuration'</span>
+<span class="text-yellow-300">)]</span>
+<span class="text-yellow-300">#[PluginSetting(</span>
+    <span class="text-purple-300">name:</span> <span class="text-green-300">'enable_tracking'</span>,
+    <span class="text-purple-300">label:</span> <span class="text-green-300">'Enable Tracking'</span>,
+    <span class="text-purple-300">type:</span> <span class="text-green-300">'boolean'</span>,
+    <span class="text-purple-300">default:</span> <span class="text-blue-300">true</span>
+<span class="text-yellow-300">)]</span>
+class Plugin implements PluginInterface { ... }</code></pre>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">text</span>
+                        <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">textarea</span>
+                        <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">number</span>
+                        <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">boolean</span>
+                        <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">select</span>
+                        <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">color</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Plugin Structure -->
+            <!-- #[AdminMenuItem] Attribute -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="p-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                        <span class="material-icons-round text-orange-500">menu</span>
+                        #[AdminMenuItem] Attribute
+                    </h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Add pages to the admin sidebar automatically</p>
+                </div>
+                <div class="p-5">
+                    <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                        <pre class="text-xs text-gray-100"><code><span class="text-yellow-300">#[AdminMenuItem(</span>
+    <span class="text-purple-300">label:</span> <span class="text-green-300">'Analytics Dashboard'</span>,
+    <span class="text-purple-300">route:</span> <span class="text-green-300">'/admin/my-plugin/analytics.php'</span>,
+    <span class="text-purple-300">icon:</span> <span class="text-green-300">'insights'</span>,        <span class="text-gray-500">// Material Icons name</span>
+    <span class="text-purple-300">position:</span> <span class="text-blue-300">50</span>,              <span class="text-gray-500">// Sort order</span>
+    <span class="text-purple-300">badge:</span> <span class="text-green-300">'NEW'</span>              <span class="text-gray-500">// Optional badge text</span>
+<span class="text-yellow-300">)]</span>
+class Plugin implements PluginInterface { ... }</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- #[PluginAsset] Attribute -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="p-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-cyan-50 to-teal-50 dark:from-cyan-900/20 dark:to-teal-900/20">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                        <span class="material-icons-round text-cyan-500">style</span>
+                        #[PluginAsset] Attribute
+                    </h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Register CSS and JavaScript assets</p>
+                </div>
+                <div class="p-5">
+                    <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                        <pre class="text-xs text-gray-100"><code><span class="text-yellow-300">#[PluginAsset(</span>
+    <span class="text-purple-300">type:</span> <span class="text-green-300">'css'</span>,
+    <span class="text-purple-300">path:</span> <span class="text-green-300">'assets/style.css'</span>,
+    <span class="text-purple-300">location:</span> <span class="text-green-300">'admin'</span>  <span class="text-gray-500">// 'admin', 'frontend', or 'both'</span>
+<span class="text-yellow-300">)]</span>
+<span class="text-yellow-300">#[PluginAsset(</span>
+    <span class="text-purple-300">type:</span> <span class="text-green-300">'js'</span>,
+    <span class="text-purple-300">path:</span> <span class="text-green-300">'assets/script.js'</span>,
+    <span class="text-purple-300">defer:</span> <span class="text-blue-300">true</span>,
+    <span class="text-purple-300">location:</span> <span class="text-green-300">'frontend'</span>
+<span class="text-yellow-300">)]</span>
+class Plugin implements PluginInterface { ... }</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plugin Directory Structure -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Plugin Directory Structure</h2>
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <span class="material-icons-round text-gray-500">folder</span>
+                    Plugin Directory Structure
+                </h2>
                 <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 font-mono text-sm text-gray-700 dark:text-gray-300">
 <pre>plugins/
-├── my-plugin/
-│   ├── Plugin.php      ← Modern (PHP 8 Attributes)
-│   ├── plugin.php      ← Legacy (Procedural)
-│   ├── assets/
-│   │   ├── css/
-│   │   └── js/
-│   └── src/
-│       └── MyService.php
-└── another-plugin/
-    └── Plugin.php</pre>
+└── my-awesome-plugin/
+    ├── Plugin.php          <span class="text-green-500">← Required entry point</span>
+    ├── assets/
+    │   ├── style.css       <span class="text-gray-500">← Register with #[PluginAsset]</span>
+    │   └── script.js
+    └── src/                <span class="text-gray-500">← Optional: Additional classes</span>
+        └── MyService.php</pre>
+                </div>
+            </div>
+
+            <!-- Using Hooks -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="p-5 border-b border-gray-100 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                        <span class="material-icons-round text-primary">webhook</span>
+                        Using Actions & Filters
+                    </h2>
+                </div>
+                <div class="p-5">
+                    <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                        <pre class="text-xs text-gray-100"><code>public function boot(): void
+{
+    <span class="text-gray-500">// Register an action</span>
+    add_action(<span class="text-green-300">'cms.post.saved'</span>, function(int $id, array $data): void {
+        <span class="text-gray-500">// Do something when a post is saved</span>
+    }, priority: <span class="text-blue-300">10</span>);
+
+    <span class="text-gray-500">// Register a filter</span>
+    add_filter(<span class="text-green-300">'cms.the_content'</span>, function(string $content): string {
+        return $content . <span class="text-green-300">'&lt;!-- Plugin was here --&gt;'</span>;
+    }, priority: <span class="text-blue-300">10</span>);
+
+    <span class="text-gray-500">// Access your plugin settings</span>
+    $apiKey = $this->getSetting(<span class="text-green-300">'api_key'</span>);
+}</code></pre>
+                    </div>
                 </div>
             </div>
         </div>

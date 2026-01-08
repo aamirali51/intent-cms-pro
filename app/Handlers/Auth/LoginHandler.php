@@ -72,10 +72,21 @@ class LoginHandler
             'email' => $email,
             'password' => $password,
         ])) {
+            // Fire success hook
+            if (function_exists('do_action')) {
+                $user = Auth::user();
+                do_action('cms.user.login', $user);
+            }
+            
             // Success - redirect to admin
             return $response->redirect('/admin');
         }
 
+        // Fire failed hook
+        if (function_exists('do_action')) {
+            do_action('cms.user.login_failed', $email);
+        }
+        
         // Failed - show error
         flash('error', 'Invalid email or password.');
         return $response->redirect('/login');

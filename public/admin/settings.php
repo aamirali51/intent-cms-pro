@@ -3,7 +3,7 @@ $title = 'Settings';
 ob_start();
 ?>
 
-<div class="max-w-5xl mx-auto">
+<div>
     <!-- Page Header with Save Button -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
@@ -51,7 +51,9 @@ ob_start();
                             <h3 class="text-base font-semibold text-gray-900 dark:text-white">Site Identity</h3>
                             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Basic information about your website.</p>
                         </div>
-                        <span class="material-icons-round text-gray-400">badge</span>
+                        <div class="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                            <span class="material-icons-round text-primary">badge</span>
+                        </div>
                     </div>
                     <div class="space-y-4">
                         <div>
@@ -83,7 +85,9 @@ ob_start();
                             <h3 class="text-base font-semibold text-gray-900 dark:text-white">Regional Settings</h3>
                             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Set the language and timezone for your site.</p>
                         </div>
-                        <span class="material-icons-round text-gray-400">public</span>
+                        <div class="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                            <span class="material-icons-round text-blue-500">public</span>
+                        </div>
                     </div>
                     <div class="space-y-4">
                         <div>
@@ -142,7 +146,9 @@ ob_start();
                             <h3 class="text-base font-semibold text-gray-900 dark:text-white">Permalink Structure</h3>
                             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Configure how your URLs look.</p>
                         </div>
-                        <span class="material-icons-round text-gray-400">link</span>
+                        <div class="h-10 w-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                            <span class="material-icons-round text-indigo-500">link</span>
+                        </div>
                     </div>
                     <div class="space-y-3">
                         <label class="flex items-center p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
@@ -178,7 +184,9 @@ ob_start();
                             <h3 class="text-base font-semibold text-gray-900 dark:text-white">Reading Settings</h3>
                             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Configure what visitors see on your front page.</p>
                         </div>
-                        <span class="material-icons-round text-gray-400">auto_stories</span>
+                        <div class="h-10 w-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                            <span class="material-icons-round text-amber-500">auto_stories</span>
+                        </div>
                     </div>
                     <div class="space-y-4">
                         <div>
@@ -213,7 +221,9 @@ ob_start();
                             <h3 class="text-base font-semibold text-gray-900 dark:text-white">Discussion Settings</h3>
                             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Configure how comments are handled.</p>
                         </div>
-                        <span class="material-icons-round text-gray-400">forum</span>
+                        <div class="h-10 w-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                            <span class="material-icons-round text-green-500">forum</span>
+                        </div>
                     </div>
                     <div class="space-y-4">
                         <div class="flex items-start">
@@ -242,7 +252,9 @@ ob_start();
                             <h3 class="text-base font-semibold text-gray-900 dark:text-white">Image Sizes</h3>
                             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Configure default image dimensions.</p>
                         </div>
-                        <span class="material-icons-round text-gray-400">photo_size_select_large</span>
+                        <div class="h-10 w-10 rounded-lg bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center">
+                            <span class="material-icons-round text-pink-500">photo_size_select_large</span>
+                        </div>
                     </div>
                     <div class="space-y-6">
                         <div>
@@ -330,8 +342,8 @@ ob_start();
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
                     Put your site in maintenance mode to display a temporary page to visitors.
                 </p>
-                <button type="button" onclick="toggleMaintenance()" id="maintenance-btn" class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <span class="material-icons-round mr-2 text-lg">build</span>
+                <button type="button" onclick="toggleMaintenance()" id="maintenance-btn" class="w-full inline-flex justify-center items-center px-4 py-2.5 border border-orange-300 dark:border-orange-600 shadow-sm text-sm font-medium rounded-lg text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-colors">
+                    <span class="material-icons-round mr-2 text-lg text-orange-500">build</span>
                     Enable Maintenance Mode
                 </button>
                 <input type="hidden" id="maintenance_mode" name="maintenance_mode" value="0" />
@@ -343,7 +355,10 @@ ob_start();
                 <p class="text-sm text-red-600 dark:text-red-400/80 mb-4">
                     Be careful with these settings.
                 </p>
-                <button type="button" class="text-sm text-red-700 dark:text-red-400 underline hover:no-underline font-medium" onclick="App.showToast('This feature is not yet implemented.', 'warning')">Delete this Site</button>
+                <button type="button" class="w-full inline-flex justify-center items-center px-4 py-2.5 border border-red-300 dark:border-red-700 text-sm font-medium rounded-lg text-white bg-red-500 hover:bg-red-600 shadow-sm transition-colors" onclick="App.showToast('This feature is not yet implemented.', 'warning')">
+                    <span class="material-icons-round mr-2 text-lg">delete_forever</span>
+                    Delete this Site
+                </button>
             </div>
         </div>
     </div>

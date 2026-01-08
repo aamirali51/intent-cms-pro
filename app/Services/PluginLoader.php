@@ -22,7 +22,7 @@ final class PluginLoader
     /** @var array<string, array{class: string, instance: object|null, metadata: Plugin, path: string, isActive: bool}> */
     private static array $plugins = [];
 
-    /** @var array<string, array{hook: string, callback: callable, priority: int, source: string}> */
+    /** @var array<int, array{hook: string, callback: callable, priority: int, source: string, type: string}> */
     private static array $registeredHooks = [];
 
     /**
@@ -230,7 +230,11 @@ final class PluginLoader
         try {
             $setting = site_setting('active_plugins', '[]');
             $list = json_decode($setting, true);
-            return is_array($list) ? $list : [];
+            if (!is_array($list)) {
+                return [];
+            }
+            // Filter to only strings to match return type
+            return array_values(array_filter($list, 'is_string'));
         } catch (\Throwable $e) {
             return [];
         }
@@ -255,6 +259,8 @@ final class PluginLoader
 
     /**
      * Register hooks from attributed methods
+     * 
+     * @param ReflectionClass<object> $reflection
      */
     private static function registerHooksFromClass(
         ReflectionClass $reflection,

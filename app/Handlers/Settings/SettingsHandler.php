@@ -103,6 +103,11 @@ class SettingsHandler
                 $updated++;
             }
             
+            // Fire hook
+            if (function_exists('do_action')) {
+                do_action('cms.settings.saved', $data, $updated);
+            }
+            
             return $res->json(['message' => "Updated $updated settings", 'count' => $updated]);
         } catch (\Throwable $e) {
             return $res->json(['error' => 'Failed to update settings: ' . $e->getMessage()], 500);

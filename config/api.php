@@ -33,8 +33,10 @@ Route::group(['prefix' => '/api/v1', 'middleware' => [AuthMiddleware::class]], f
     // ─────────────────────────────────────────────────────────────
     
     Route::get('/posts', function (Request $req, Response $res) {
-        $limit = (int) ($req->get('limit') ?? 20);
-        $offset = (int) ($req->get('offset') ?? 0);
+        $limitRaw = $req->get('limit');
+        $offsetRaw = $req->get('offset');
+        $limit = is_numeric($limitRaw) ? (int) $limitRaw : 20;
+        $offset = is_numeric($offsetRaw) ? (int) $offsetRaw : 0;
         $status = $req->get('status');
         
         $query = db()->table('cms_content')->where('type', 'post');
@@ -232,12 +234,13 @@ Route::group(['prefix' => '/api/v1', 'middleware' => [AuthMiddleware::class]], f
     // ─────────────────────────────────────────────────────────────
     
     Route::get('/media', function (Request $req, Response $res) {
-        $limit = (int) ($req->get('limit') ?? 50);
+        $limitRaw = $req->get('limit');
+        $limit = is_numeric($limitRaw) ? (int) $limitRaw : 50;
         $folderId = $req->get('folder_id');
         
         $query = db()->table('cms_media');
         
-        if ($folderId !== null && $folderId !== '') {
+        if ($folderId !== null && $folderId !== '' && is_numeric($folderId)) {
             $query->where('folder_id', (int) $folderId);
         }
         
