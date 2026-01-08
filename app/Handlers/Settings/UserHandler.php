@@ -264,11 +264,28 @@ class UserHandler
                 return $res->json(['error' => 'User not found'], 404);
             }
 
+            $userData = $existing[0];
+            $userRole = is_string($userData['role']) ? $userData['role'] : '';
+            
+            // Prevent deleting the last admin
+            if ($userRole === 'admin') {
+                $adminCountResult = db()->raw('SELECT COUNT(*) as count FROM users WHERE role = ?', ['admin']);
+                $adminCount = isset($adminCountResult[0]['count']) && is_numeric($adminCountResult[0]['count']) 
+                    ? (int) $adminCountResult[0]['count'] 
+                    : 0;
+                
+                if ($adminCount <= 1) {
+                    return $res->json([
+                        'error' => 'Cannot delete the last admin account. Promote another user to admin first.'
+                    ], 400);
+                }
+            }
+
             db()->raw('DELETE FROM users WHERE id = ?', [$id]);
             
             // Fire hook
             if (function_exists('do_action')) {
-                do_action('cms.user.deleted', $id, $existing[0]);
+                do_action('cms.user.deleted', $id, $userData);
             }
             
             return $res->json(['success' => true, 'message' => 'User deleted successfully']);
