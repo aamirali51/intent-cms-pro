@@ -1,0 +1,32 @@
+parameters:
+    level: 9
+    paths:
+        - src
+    excludePaths:
+        - vendor
+        - tests
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: true
+
+    ignoreErrors:
+        # ============================================================
+        # Intent Framework Static Facades (strictly scoped)
+        # ============================================================
+        - message: '#^Call to an undefined static method Core\\(DB|Route|Auth|Request|Response|Session|Config|Validator|Cache|Log|Upload|Paginator|Migration|Event|RateLimiter|SecurityHeaders|OAuth|Registry)::.*\(\)\.$#'
+
+        - message: '#^Access to an undefined property Core\\(DB|Route|Auth|Request|Response|Session|Config|Validator|Cache|Log)::.*\.$#'
+
+        # ============================================================
+        # QueryBuilder & Query fluent interface
+        # ============================================================
+        - message: '#^Call to an undefined method Core\\QueryBuilder::.*\(\)\.$#'
+        - message: '#^Call to an undefined method Core\\Query::.*\(\)\.$#'
+
+        # ============================================================
+        # Optional Dependencies (Twig is optional)
+        # ============================================================
+        -
+            message: '#class Twig#'
+            path: src/helpers.php

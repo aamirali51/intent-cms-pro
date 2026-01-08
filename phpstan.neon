@@ -1,0 +1,24 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 9
+    paths:
+        - app/
+        - config/
+        - database/migrations/          # Add this – migrations are PHP code too!
+        - public/index.php              # Optional: catch issues in entry point
+    excludePaths:
+        - vendor/
+        - storage/
+        - public/admin/                 # Exclude your static SPA frontend (JS/CSS/HTML)
+        - node_modules/                 # If you ever add frontend build tools
+    scanDirectories:
+        - vendor/intent/framework/src/
+    bootstrapFiles:
+        - vendor/autoload.php
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: true
+    ignoreErrors:
+        - '#Constant BASE_PATH not found#'
+        - '#Constant INTENT_START not found#'

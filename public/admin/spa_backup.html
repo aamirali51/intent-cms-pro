@@ -1,0 +1,1973 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intent CMS - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/app.css">
+
+    <!-- Editor.js & Plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 transition-colors duration-200">
+    <div id="app" class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside
+            class="w-64 flex-shrink-0 bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark flex flex-col transition-colors duration-200 hidden md:flex">
+            <!-- Logo -->
+            <div class="h-16 flex items-center px-6 border-b border-border-light dark:border-border-dark">
+                <span class="material-icons-round text-primary text-3xl mr-2">grid_view</span>
+                <h1 class="text-xl font-bold tracking-tight text-gray-900 dark:text-white">Intent CMS</h1>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1 no-scrollbar">
+                <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-2">Main</p>
+
+                <a href="/admin" data-route="/"
+                    class="nav-link flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-primary transition-colors">
+                    <span class="material-icons-round text-xl mr-3">dashboard</span>
+                    Dashboard
+                </a>
+
+                <a href="/admin/pages" data-route="/pages"
+                    class="nav-link flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-primary transition-colors">
+                    <span class="material-icons-round text-xl mr-3">layers</span>
+                    Pages
+                    <span
+                        class="ml-auto bg-gray-100 dark:bg-gray-700 py-0.5 px-2 rounded-full text-xs font-medium text-gray-600 dark:text-gray-300"
+                        id="pages-count">0</span>
+                </a>
+
+                <a href="/admin/posts" data-route="/posts"
+                    class="nav-link flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-primary transition-colors">
+                    <span class="material-icons-round text-xl mr-3">article</span>
+                    Posts
+                    <span class="ml-auto bg-primary text-white py-0.5 px-2 rounded-full text-xs font-medium"
+                        id="posts-count">0</span>
+                </a>
+
+                <a href="/admin/media" data-route="/media"
+                    class="nav-link flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-primary transition-colors">
+                    <span class="material-icons-round text-xl mr-3">folder</span>
+                    Media Files
+                </a>
+
+                <a href="/admin/categories" data-route="/categories"
+                    class="nav-link flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-primary transition-colors">
+                    <span class="material-icons-round text-xl mr-3">category</span>
+                    Categories
+                </a>
+
+                <a href="/admin/tags" data-route="/tags"
+                    class="nav-link flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-primary transition-colors">
+                    <span class="material-icons-round text-xl mr-3">label</span>
+                    Tags
+                </a>
+
+                <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-6">Management</p>
+
+                <a href="/admin/comments" data-route="/comments"
+                    class="nav-link flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-primary transition-colors">
+                    <span class="material-icons-round text-xl mr-3">comment</span>
+                    Comments
+                </a>
+
+                <a href="/admin/users" data-route="/users"
+                    class="nav-link flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-primary transition-colors">
+                    <span class="material-icons-round text-xl mr-3">people</span>
+                    Users
+                </a>
+
+                <a href="/admin/settings" data-route="/settings"
+                    class="nav-link flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-primary transition-colors">
+                    <span class="material-icons-round text-xl mr-3">settings</span>
+                    Settings
+                </a>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="mt-auto flex-shrink-0 border-t border-border-light dark:border-border-dark p-4">
+                <div class="flex items-center w-full">
+                    <div class="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-white font-medium"
+                        id="sidebar-avatar">A</div>
+                    <div class="ml-3 truncate">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white" id="sidebar-name">Admin</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate" id="sidebar-email">admin@intent.com
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+            <!-- Header -->
+            <header
+                class="h-16 flex items-center justify-between px-6 bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark z-10 transition-colors duration-200">
+                <button class="md:hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <span class="material-icons-round">menu</span>
+                </button>
+
+                <!-- Search -->
+                <div class="hidden md:flex items-center w-96 relative">
+                    <span class="material-icons-round absolute left-3 text-gray-400">search</span>
+                    <input type="text" placeholder="Search anything..."
+                        class="w-full pl-10 pr-4 py-2 text-sm bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-400 focus:ring-2 focus:ring-primary">
+                </div>
+
+                <!-- Header Right -->
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-400 hover:text-primary transition-colors relative">
+                        <span class="material-icons-round">notifications</span>
+                        <span
+                            class="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full border-2 border-white dark:border-surface-dark"></span>
+                    </button>
+                    <button id="theme-toggle" class="text-gray-400 hover:text-primary transition-colors">
+                        <span class="material-icons-round">dark_mode</span>
+                    </button>
+                    <form action="/logout" method="POST" id="logout-form" class="inline">
+                        <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors" title="Logout">
+                            <span class="material-icons-round">logout</span>
+                        </button>
+                    </form>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main
+                class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark p-6 transition-colors duration-200"
+                id="content">
+                <!-- Dynamic content loaded here -->
+            </main>
+        </div>
+    </div>
+
+    <!-- Global Modal -->
+    <div id="global-modal" class="fixed inset-0 z-50 hidden"
+        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0;" aria-labelledby="modal-title" role="dialog"
+        aria-modal="true">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm"
+            style="position: fixed; top: 0; left: 0; right: 0; bottom: 0;" onclick="App.closeModal()"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0;">
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0"
+                style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+                <div
+                    class="relative transform overflow-hidden rounded-lg bg-white dark:bg-surface-dark text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-border-light dark:border-border-dark">
+                    <div class="bg-white dark:bg-surface-dark px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
+                                <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white mb-4"
+                                    id="modal-title"></h3>
+                                <div class="mt-2" id="modal-body"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-800/50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-2"
+                        id="modal-actions">
+                        <!-- Buttons injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox-modal" class="hidden"
+        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 60; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center;"
+        onclick="App.closeLightbox()">
+        <button onclick="App.closeLightbox()"
+            style="position: absolute; top: 20px; right: 20px; color: white; background: none; border: none; cursor: pointer; z-index: 61;">
+            <span class="material-icons-round" style="font-size: 32px;">close</span>
+        </button>
+        <img id="lightbox-image" src="" alt="" style="max-width: 90%; max-height: 90%; object-fit: contain;"
+            onclick="event.stopPropagation()">
+    </div>
+
+    <!-- Upload Progress Modal -->
+    <div id="upload-progress-modal" class="hidden"
+        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 55; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center;">
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-2xl" style="min-width: 320px; max-width: 400px;"
+            onclick="event.stopPropagation()">
+            <h3 class="font-bold text-gray-900 dark:text-white mb-4">Uploading Files...</h3>
+            <div class="space-y-3" id="upload-progress-list"></div>
+            <p class="text-sm text-gray-500 mt-4" id="upload-progress-status">Preparing...</p>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================================
+        // Intent CMS SPA Router - Using User's Stitch Design
+        // ==========================================================
+        const App = {
+            currentRoute: '/',
+            csrfToken: null,
+            stats: { posts: 0, pages: 0, users: 0, media: 0 },
+            editor: null, // Editor.js instance
+
+            // Media State
+            customFile: null,
+            selectedFile: null,
+            selectedFileIds: new Set(),
+            mediaQuery: { type: 'all', search: '', sort: 'created_at', order: 'desc' },
+            viewMode: 'grid',
+            currentFolderId: null,
+            currentFolderPath: [], // Breadcrumb path
+            folders: [],
+            _pendingResolve: null, // For folder picker modal
+            uploadQueue: [], // For upload progress
+
+            async init() {
+                await this.loadCsrfToken();
+                await this.loadUser();
+                await this.loadStats();
+                this.bindNavigation();
+                this.bindThemeToggle();
+                this.navigate(this.getCurrentPath());
+            },
+
+            getCurrentPath() {
+                const path = window.location.pathname;
+                if (path === '/admin' || path === '/admin/') return '/';
+                return path.replace('/admin', '') || '/';
+            },
+
+            async loadCsrfToken() {
+                try {
+                    const res = await fetch('/api/csrf-token');
+                    if (res.ok) {
+                        const data = await res.json();
+                        this.csrfToken = data.token;
+                    }
+                } catch (e) { console.error('CSRF load failed:', e); }
+            },
+
+            async loadUser() {
+                try {
+                    const res = await fetch('/api/user');
+                    if (res.ok) {
+                        const user = await res.json();
+                        document.getElementById('sidebar-name').textContent = user.name || 'Admin';
+                        document.getElementById('sidebar-email').textContent = user.email || '';
+                        document.getElementById('sidebar-avatar').textContent = (user.name || 'A')[0].toUpperCase();
+                    }
+                } catch (e) { console.error('User load failed:', e); }
+            },
+
+            async loadStats() {
+                try {
+                    const res = await fetch('/api/dashboard/stats');
+                    if (res.ok) {
+                        this.stats = await res.json();
+                        document.getElementById('posts-count').textContent = this.stats.posts || 0;
+                        document.getElementById('pages-count').textContent = this.stats.pages || 0;
+                    }
+                } catch (e) { console.error('Stats load failed:', e); }
+            },
+
+            bindNavigation() {
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const route = link.getAttribute('data-route');
+                        history.pushState({}, '', '/admin' + (route === '/' ? '' : route));
+                        this.navigate(route);
+                    });
+                });
+
+                window.addEventListener('popstate', () => this.navigate(this.getCurrentPath()));
+
+                document.getElementById('logout-form').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    await fetch('/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                });
+            },
+
+            bindThemeToggle() {
+                document.getElementById('theme-toggle').addEventListener('click', () => {
+                    document.documentElement.classList.toggle('dark');
+                });
+            },
+
+            async navigate(path) {
+                this.currentRoute = path;
+                this.updateActiveNav(path);
+
+                const content = document.getElementById('content');
+                content.innerHTML = '<div class="flex items-center justify-center h-64"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>';
+
+                const routes = {
+                    '/': { title: 'Dashboard', render: () => this.renderDashboard() },
+                    '/posts': { title: 'Posts', render: () => this.renderPosts() },
+                    '/pages': { title: 'Pages', render: () => this.renderPages() },
+                    '/media': { title: 'Media', render: () => this.renderMedia() },
+                    '/categories': { title: 'Categories', render: () => this.renderPlaceholder('Categories', 'category') },
+                    '/tags': { title: 'Tags', render: () => this.renderPlaceholder('Tags', 'label') },
+                    '/comments': { title: 'Comments', render: () => this.renderPlaceholder('Comments', 'comment') },
+                    '/users': { title: 'Users', render: () => this.renderPlaceholder('Users', 'people') },
+                    '/settings': { title: 'Settings', render: () => this.renderPlaceholder('Settings', 'settings') },
+                };
+
+                const route = routes[path] || { title: 'Not Found', render: () => this.render404() };
+                document.title = `${route.title} - Intent CMS`;
+                content.innerHTML = await route.render();
+            },
+
+            updateActiveNav(path) {
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    const route = link.getAttribute('data-route');
+                    if (route === path) {
+                        link.classList.add('bg-primary/10', 'text-primary');
+                        link.classList.remove('text-gray-600', 'dark:text-gray-400');
+                    } else {
+                        link.classList.remove('bg-primary/10', 'text-primary');
+                        link.classList.add('text-gray-600', 'dark:text-gray-400');
+                    }
+                });
+            },
+
+            async api(endpoint, method = 'GET', body = null) {
+                try {
+                    const options = {
+                        method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.csrfToken
+                        }
+                    };
+                    if (body) options.body = JSON.stringify(body);
+
+                    const res = await fetch('/api' + endpoint, options);
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        console.error('API Error Details:', err);
+                        throw new Error(err.error || err.message || 'API Error');
+                    }
+                    return await res.json();
+                } catch (e) {
+                    console.error('API Request Failed:', e);
+                    // Return empty array for list endpoints to prevent UI crashes if GET
+                    if (method === 'GET' && endpoint.includes('?')) return [];
+                    return null;
+                }
+            },
+
+            // ==========================================================
+            // Media Management Methods
+            // ==========================================================
+
+            selectFile(file) {
+                // Update previous active item
+                if (this.selectedFile) {
+                    const prevId = this.selectedFile.id;
+                    this.selectedFile = null; // Temp null to update visual
+                    this.updateItemSelectionUI(prevId);
+                }
+
+                this.selectedFile = file;
+                this.updateItemSelectionUI(file.id);
+
+                const sidebar = document.getElementById('media-sidebar');
+                if (sidebar) {
+                    sidebar.innerHTML = this.renderSidebarContent(file);
+                    sidebar.classList.remove('hidden');
+                }
+            },
+
+            closeSidebar() {
+                if (this.selectedFile) {
+                    const prevId = this.selectedFile.id;
+                    this.selectedFile = null;
+                    this.updateItemSelectionUI(prevId);
+                }
+                const sidebar = document.getElementById('media-sidebar');
+                if (sidebar) {
+                    sidebar.classList.add('hidden');
+                    sidebar.innerHTML = '';
+                }
+            },
+
+            async uploadFiles(files) {
+                if (!files || !files.length) return;
+
+                // Show progress modal
+                const progressModal = document.getElementById('upload-progress-modal');
+                const progressList = document.getElementById('upload-progress-list');
+                const progressStatus = document.getElementById('upload-progress-status');
+
+                progressModal.classList.remove('hidden');
+                progressModal.style.display = 'flex';
+                progressList.innerHTML = '';
+
+                const totalFiles = files.length;
+                let completed = 0;
+                let failed = 0;
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const itemId = `upload-item-${i}`;
+
+                    // Add progress item
+                    progressList.innerHTML += `
+                        <div id="${itemId}" class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center flex-shrink-0">
+                                <span class="material-icons-round text-gray-400 text-sm" id="${itemId}-icon">upload_file</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-gray-900 dark:text-white truncate">${file.name}</p>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-1">
+                                    <div id="${itemId}-bar" class="bg-primary h-1.5 rounded-full transition-all" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    progressStatus.textContent = `Uploading ${i + 1} of ${totalFiles}...`;
+
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    if (this.currentFolderId) formData.append('folder_id', this.currentFolderId);
+
+                    try {
+                        // Simulate progress (actual XHR would give real progress)
+                        const bar = document.getElementById(`${itemId}-bar`);
+                        const icon = document.getElementById(`${itemId}-icon`);
+                        if (bar) bar.style.width = '50%';
+
+                        const res = await fetch('/api/media/upload', {
+                            method: 'POST',
+                            headers: { 'X-CSRF-TOKEN': this.csrfToken },
+                            body: formData
+                        });
+
+                        if (res.ok) {
+                            completed++;
+                            if (bar) bar.style.width = '100%';
+                            if (bar) bar.classList.remove('bg-primary');
+                            if (bar) bar.classList.add('bg-green-500');
+                            if (icon) { icon.textContent = 'check_circle'; icon.classList.add('text-green-500'); icon.classList.remove('text-gray-400'); }
+                        } else {
+                            failed++;
+                            const err = await res.json().catch(() => ({}));
+                            console.error(err);
+                            if (bar) bar.classList.remove('bg-primary');
+                            if (bar) bar.classList.add('bg-red-500');
+                            if (bar) bar.style.width = '100%';
+                            if (icon) { icon.textContent = 'error'; icon.classList.add('text-red-500'); icon.classList.remove('text-gray-400'); }
+                        }
+                    } catch (e) {
+                        failed++;
+                        const bar = document.getElementById(`${itemId}-bar`);
+                        const icon = document.getElementById(`${itemId}-icon`);
+                        if (bar) bar.classList.add('bg-red-500');
+                        if (icon) { icon.textContent = 'error'; icon.classList.add('text-red-500'); }
+                    }
+                }
+
+                // Show completion status
+                progressStatus.textContent = `Upload complete: ${completed} succeeded, ${failed} failed`;
+
+                // Auto-close after 1.5s
+                setTimeout(() => {
+                    progressModal.classList.add('hidden');
+                    progressModal.style.display = 'none';
+                    this.refresh();
+                }, 1500);
+            },
+
+            async deleteFile(id) {
+                if (!confirm('Are you sure you want to delete this file? This action cannot be undone.')) return;
+                try {
+                    const res = await fetch(`/api/media/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'X-CSRF-TOKEN': this.csrfToken }
+                    });
+                    if (res.ok) {
+                        this.selectedFile = null;
+                        this.refresh();
+                    } else {
+                        alert('Failed to delete file');
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert('Error deleting file');
+                }
+            },
+
+            async updateFile(id, data) {
+                try {
+                    const res = await fetch(`/api/media/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.csrfToken
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    if (res.ok) {
+                        const updated = await res.json();
+                        this.selectedFile = updated;
+                    }
+                } catch (e) {
+                    console.error('Update failed:', e);
+                }
+            },
+
+            filterMedia(key, value) {
+                if (!this.mediaQuery) this.mediaQuery = { type: 'all', search: '' };
+                this.mediaQuery[key] = value;
+                this.refresh();
+            },
+
+            formatSize(bytes) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            },
+
+            toggleFileSelection(id, event) {
+                if (event) event.stopPropagation();
+                if (this.selectedFileIds.has(id)) {
+                    this.selectedFileIds.delete(id);
+                } else {
+                    this.selectedFileIds.add(id);
+                }
+                this.updateItemSelectionUI(id);
+                this.updateToolbarUI();
+            },
+
+            updateItemSelectionUI(id) {
+                const el = document.getElementById(`media-item-${id}`);
+                const cb = document.getElementById(`media-check-${id}`);
+                const row = document.getElementById(`media-row-${id}`);
+                const rowCb = document.getElementById(`media-row-check-${id}`);
+
+                const isChecked = this.selectedFileIds.has(id);
+                const isActive = this.selectedFile && this.selectedFile.id === id;
+
+                // Grid Item
+                if (el) {
+                    // Reset classes
+                    el.classList.remove('ring-2', 'ring-blue-500', 'border-blue-500', 'ring-primary', 'border-primary', 'border-border-light', 'dark:border-border-dark');
+
+                    if (isActive) {
+                        el.classList.add('ring-2', 'ring-primary', 'border-primary');
+                    } else if (isChecked) {
+                        el.classList.add('ring-2', 'ring-blue-500', 'border-blue-500');
+                    } else {
+                        el.classList.add('border-border-light', 'dark:border-border-dark');
+                    }
+
+                    // Checkbox visibility
+                    if (cb) {
+                        cb.checked = isChecked;
+                        const wrapper = cb.parentNode; // .absolute container
+                        if (isChecked) {
+                            wrapper.classList.remove('opacity-0', 'group-hover:opacity-100');
+                            wrapper.classList.add('opacity-100');
+                        } else {
+                            wrapper.classList.remove('opacity-100');
+                            wrapper.classList.add('opacity-0', 'group-hover:opacity-100');
+                        }
+                    }
+
+                    // Check Circle Overlay for Active Item (if design requires, currently handled by renderMedia logic)
+                    // In renderMedia: ${this.selectedFile?.id === item.id ? '<span ...>check_circle</span>' : ''}
+                    // I should toggle this overlay visibility too?
+                    // The overlay div is last child.
+                    const overlay = el.lastElementChild;
+                    if (overlay && overlay.classList.contains('pointer-events-none')) {
+                        if (isActive) {
+                            overlay.classList.remove('opacity-0');
+                            overlay.innerHTML = '<span class="material-icons-round">check_circle</span>';
+                        } else {
+                            overlay.classList.add('opacity-0');
+                            overlay.innerHTML = '';
+                        }
+                    }
+                }
+
+                // List Row
+                if (row) {
+                    row.classList.remove('bg-primary/5', 'bg-blue-50', 'dark:bg-blue-900/20');
+                    if (isActive) {
+                        row.classList.add('bg-primary/5');
+                    } else if (isChecked) {
+                        row.classList.add('bg-blue-50', 'dark:bg-blue-900/20');
+                    }
+                    if (rowCb) rowCb.checked = isChecked;
+                }
+            },
+
+            updateToolbarUI() {
+                const container = document.getElementById('media-actions');
+                if (!container) return;
+
+                if (this.selectedFileIds.size > 0) {
+                    container.innerHTML = `
+                        <button onclick="App.deleteSelectedFiles()" class="px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg text-sm font-medium flex items-center transition-colors">
+                            <span class="material-icons-round text-base mr-2">delete</span>
+                            Delete Selected (${this.selectedFileIds.size})
+                        </button>
+                        <button onclick="App.moveSelectedFiles()" class="px-4 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-sm font-medium flex items-center transition-colors">
+                            <span class="material-icons-round text-base mr-2">drive_file_move</span>
+                            Move Selected
+                        </button>
+                        <button onclick="App.selectedFileIds.clear(); App.refresh()" class="px-4 py-2 text-gray-500 hover:text-gray-700 font-medium text-sm">Cancel</button>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <label class="px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-lg shadow-lg shadow-primary/20 text-sm font-medium flex items-center transition-colors cursor-pointer">
+                            <span class="material-icons-round text-base mr-2">cloud_upload</span>
+                            Upload New
+                            <input type="file" class="hidden" multiple onchange="App.uploadFiles(this.files)">
+                        </label>
+                        
+                        <button onclick="App.createNewFolder()" class="px-4 py-2 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium flex items-center transition-colors">
+                            <span class="material-icons-round text-base mr-2">create_new_folder</span>
+                            New Folder
+                        </button>
+                    `;
+                }
+            },
+
+            async deleteSelectedFiles() {
+                const count = this.selectedFileIds.size;
+                if (!count) return;
+
+                if (!confirm(`Are you sure you want to delete ${count} files? This cannot be undone.`)) return;
+
+                try {
+                    const res = await fetch('/api/media/bulk-delete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.csrfToken
+                        },
+                        body: JSON.stringify({ ids: Array.from(this.selectedFileIds) })
+                    });
+
+                    if (res.ok) {
+                        this.selectedFileIds.clear();
+                        this.selectedFile = null;
+                        this.refresh();
+                    } else {
+                        const err = await res.json().catch(() => ({}));
+                        alert('Failed to delete files: ' + (err.error || 'Unknown error'));
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert('Error deleting files');
+                }
+            },
+
+            isImage(file) {
+                return file.type.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg|bmp)$/i.test(file.filename);
+            },
+
+            getThumb(file, size = 'small') {
+                if (!this.isImage(file)) return null;
+                if (file.thumbnails && file.thumbnails[size]) {
+                    return file.thumbnails[size];
+                }
+                return file.path;
+            },
+
+            refresh() {
+                this.navigate(this.currentRoute);
+            },
+
+            toggleViewMode() {
+                this.viewMode = this.viewMode === 'grid' ? 'list' : 'grid';
+                this.refresh();
+            },
+
+            // ==========================================================
+            // Lightbox Methods
+            // ==========================================================
+            showLightbox(src) {
+                const modal = document.getElementById('lightbox-modal');
+                const img = document.getElementById('lightbox-image');
+                img.src = src;
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            },
+
+            closeLightbox() {
+                const modal = document.getElementById('lightbox-modal');
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            },
+
+            // ==========================================================
+            // Download File
+            // ==========================================================
+            downloadFile(path, filename) {
+                const a = document.createElement('a');
+                a.href = path;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            },
+
+            // ==========================================================
+            // Rename File
+            // ==========================================================
+            async renameFile(id, currentName) {
+                const ext = currentName.split('.').pop();
+                const nameWithoutExt = currentName.substring(0, currentName.lastIndexOf('.'));
+                const newName = await this.prompt("Rename File", "Enter new filename:", nameWithoutExt);
+
+                if (newName && newName !== nameWithoutExt) {
+                    try {
+                        const res = await this.api(`/media/${id}`, 'PUT', { filename: newName + '.' + ext });
+                        if (res) {
+                            this.selectedFile = res;
+                            this.refresh();
+                        } else {
+                            alert('Failed to rename file');
+                        }
+                    } catch (e) {
+                        alert('Error renaming file');
+                    }
+                }
+            },
+
+            // ==========================================================
+            // Sort Methods
+            // ==========================================================
+            setSort(sort, order) {
+                this.mediaQuery.sort = sort;
+                this.mediaQuery.order = order;
+                this.refresh();
+            },
+
+            // ==========================================================
+            // Breadcrumb Navigation
+            // ==========================================================
+            async loadFolderPath(folderId) {
+                if (!folderId) {
+                    this.currentFolderPath = [];
+                    return;
+                }
+
+                // Build path by traversing up
+                const path = [];
+                let currentId = folderId;
+
+                while (currentId) {
+                    const res = await this.api(`/media/folders?id=${currentId}`, 'GET');
+                    if (res && res.length > 0) {
+                        path.unshift({ id: res[0].id, name: res[0].name });
+                        currentId = res[0].parent_id;
+                    } else {
+                        break;
+                    }
+                }
+
+                this.currentFolderPath = path;
+            },
+
+            // ==========================================================
+            // Page Renderers (Using Stitch Design Patterns)
+            // ==========================================================
+
+            async renderDashboard() {
+                return `
+                <div class="max-w-7xl mx-auto space-y-6">
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                        <div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl shadow-sm border border-border-light dark:border-border-dark relative group hover:shadow-md transition-shadow">
+                            <div class="flex items-start">
+                                <div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-500 dark:text-blue-400 mr-3">
+                                    <span class="material-icons-round text-xl">description</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Total Pages</p>
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">${this.stats.pages}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl shadow-sm border border-border-light dark:border-border-dark relative group hover:shadow-md transition-shadow">
+                            <div class="flex items-start">
+                                <div class="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-purple-500 dark:text-purple-400 mr-3">
+                                    <span class="material-icons-round text-xl">article</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Total Posts</p>
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">${this.stats.posts}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl shadow-sm border border-border-light dark:border-border-dark relative group hover:shadow-md transition-shadow">
+                            <div class="flex items-start">
+                                <div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-500 dark:text-green-400 mr-3">
+                                    <span class="material-icons-round text-xl">folder</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Media Files</p>
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">${this.stats.media}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl shadow-sm border border-border-light dark:border-border-dark relative group hover:shadow-md transition-shadow">
+                            <div class="flex items-start">
+                                <div class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg text-orange-500 dark:text-orange-400 mr-3">
+                                    <span class="material-icons-round text-xl">people</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Total Users</p>
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">${this.stats.users}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-border-light dark:border-border-dark">
+                        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="App.navigate('/posts')" class="px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-lg shadow-lg shadow-primary/20 text-sm font-medium flex items-center transition-colors">
+                                <span class="material-icons-round text-base mr-2">add</span>
+                                New Post
+                            </button>
+                            <button onclick="App.navigate('/pages')" class="px-4 py-2 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium flex items-center transition-colors">
+                                <span class="material-icons-round text-base mr-2">layers</span>
+                                New Page
+                            </button>
+                            <button onclick="App.navigate('/media')" class="px-4 py-2 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium flex items-center transition-colors">
+                                <span class="material-icons-round text-base mr-2">upload</span>
+                                Upload Media
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Welcome Banner -->
+                    <div class="bg-gradient-to-r from-primary to-purple-600 rounded-xl p-8 text-white">
+                        <h2 class="text-2xl font-bold mb-2">Welcome to Intent CMS</h2>
+                        <p class="text-white/80 mb-4">Your modern, AI-native content management system is ready.</p>
+                        <p class="text-sm text-white/60">Built on Intent Framework v0.7.0 • SPA Architecture</p>
+                    </div>
+                </div>
+            `;
+            },
+
+            async renderPosts() {
+                const posts = await this.api('/posts') || [];
+                const rows = posts.length ? posts.map(p => `
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+                    <td class="px-6 py-4">
+                        <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-gray-900 dark:text-white">${p.title || 'Untitled'}</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">/${p.slug || ''}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${p.status === 'published' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'}">
+                            ${p.status || 'draft'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-gray-500 dark:text-gray-400">${p.created_at || '-'}</td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-1 text-gray-400 hover:text-primary transition-colors" title="Edit">
+                                <span class="material-icons-round text-lg">edit</span>
+                            </button>
+                            <button class="p-1 text-gray-400 hover:text-red-500 transition-colors" title="Delete">
+                                <span class="material-icons-round text-lg">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('') : '';
+
+                return `
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Posts</h2>
+                            <nav class="flex text-sm text-gray-500 dark:text-gray-400">
+                                <a href="#" onclick="App.navigate('/');return false" class="hover:text-primary">Dashboard</a>
+                                <span class="mx-2">/</span>
+                                <span class="text-gray-800 dark:text-gray-200">Posts</span>
+                            </nav>
+                        </div>
+                        <div class="mt-4 md:mt-0 flex gap-3">
+                            <button class="px-4 py-2 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium flex items-center transition-colors">
+                                <span class="material-icons-round text-base mr-2">file_download</span>
+                                Export
+                            </button>
+                            <button class="px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-lg shadow-lg shadow-primary/20 text-sm font-medium flex items-center transition-colors">
+                                <span class="material-icons-round text-base mr-2">add</span>
+                                Add New Post
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm overflow-hidden border border-border-light dark:border-border-dark">
+                        ${posts.length ? `
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-left text-sm">
+                                <thead class="bg-gray-50 dark:bg-gray-800/50 uppercase tracking-wider border-b border-border-light dark:border-border-dark text-gray-500 dark:text-gray-400 font-medium">
+                                    <tr>
+                                        <th class="px-6 py-4 w-12" scope="col">
+                                            <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+                                        </th>
+                                        <th class="px-6 py-4" scope="col">Title</th>
+                                        <th class="px-6 py-4" scope="col">Status</th>
+                                        <th class="px-6 py-4" scope="col">Date</th>
+                                        <th class="px-6 py-4 text-right" scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-border-light dark:divide-border-dark">
+                                    ${rows}
+                                </tbody>
+                            </table>
+                        </div>
+                        ` : `
+                        <div class="p-12 text-center">
+                            <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span class="material-icons-round text-3xl text-gray-400">article</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No posts yet</h3>
+                            <p class="text-gray-500 dark:text-gray-400 mb-4">Get started by creating your first post.</p>
+                            <button class="px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-lg text-sm font-medium">
+                                Create Post
+                            </button>
+                        </div>
+                        `}
+                    </div>
+                </div>
+            `;
+            },
+
+            async renderPosts() {
+                const posts = await this.api('/posts') || [];
+                // Sort posts by created_at desc if not already
+                posts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                const rows = posts.length ? posts.map(p => `
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group cursor-pointer" onclick="App.editPost(${p.id})">
+                    <td class="px-6 py-4" onclick="event.stopPropagation()">
+                        <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-gray-900 dark:text-white">${p.title || 'Untitled'}</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">/${p.slug || ''}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${p.status === 'published' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'}">
+                            ${p.status || 'draft'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-gray-500 dark:text-gray-400">${new Date(p.created_at).toLocaleDateString()}</td>
+                    <td class="px-6 py-4 text-right" onclick="event.stopPropagation()">
+                        <div class="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="App.editPost(${p.id})" class="p-1 text-gray-400 hover:text-primary transition-colors" title="Edit">
+                                <span class="material-icons-round text-lg">edit</span>
+                            </button>
+                            <button onclick="App.deletePost(${p.id})" class="p-1 text-gray-400 hover:text-red-500 transition-colors" title="Delete">
+                                <span class="material-icons-round text-lg">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                `).join('') : '';
+
+                return `
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Posts</h2>
+                            <nav class="flex text-sm text-gray-500 dark:text-gray-400">
+                                <a href="#" onclick="App.navigate('/');return false" class="hover:text-primary">Dashboard</a>
+                                <span class="mx-2">/</span>
+                                <span class="text-gray-800 dark:text-gray-200">Posts</span>
+                            </nav>
+                        </div>
+                        <div class="mt-4 md:mt-0 flex gap-3">
+                            <button onclick="App.editPost()" class="px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-lg shadow-lg shadow-primary/20 text-sm font-medium flex items-center transition-colors">
+                                <span class="material-icons-round text-base mr-2">add</span>
+                                Add New Post
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm overflow-hidden border border-border-light dark:border-border-dark">
+                        ${posts.length ? `
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-left text-sm">
+                                <thead class="bg-gray-50 dark:bg-gray-800/50 uppercase tracking-wider border-b border-border-light dark:border-border-dark text-gray-500 dark:text-gray-400 font-medium">
+                                    <tr>
+                                        <th class="px-6 py-4 w-12" scope="col">
+                                            <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+                                        </th>
+                                        <th class="px-6 py-4" scope="col">Title</th>
+                                        <th class="px-6 py-4" scope="col">Status</th>
+                                        <th class="px-6 py-4" scope="col">Date</th>
+                                        <th class="px-6 py-4 text-right" scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-border-light dark:divide-border-dark">
+                                    ${rows}
+                                </tbody>
+                            </table>
+                        </div>
+                        ` : `
+                        <div class="p-12 text-center">
+                            <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span class="material-icons-round text-3xl text-gray-400">article</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No posts yet</h3>
+                            <p class="text-gray-500 dark:text-gray-400 mb-4">Get started by creating your first post.</p>
+                            <button onclick="App.editPost()" class="px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-lg text-sm font-medium">
+                                Create Post
+                            </button>
+                        </div>
+                        `}
+                    </div>
+                </div>
+                `;
+            },
+
+            async editPost(id = null) {
+                let post = { title: '', slug: '', excerpt: '', content: '', status: 'draft', featured_image: '' };
+                if (id) {
+                    try {
+                        post = await this.api(`/posts/${id}`);
+                        // Parse content if string
+                        if (post.content && typeof post.content === 'string') {
+                            try { post.content = JSON.parse(post.content); } catch (e) { }
+                        }
+                    } catch (e) {
+                        alert('Error loading post');
+                        return;
+                    }
+                }
+
+                const modalBody = `
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
+                            <input type="text" id="post-title" value="${post.title}" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all dark:text-white" placeholder="Enter post title">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Slug</label>
+                                <input type="text" id="post-slug" value="${post.slug}" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all dark:text-white" placeholder="auto-generated">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                                <select id="post-status" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all dark:text-white">
+                                    <option value="draft" ${post.status === 'draft' ? 'selected' : ''}>Draft</option>
+                                    <option value="published" ${post.status === 'published' ? 'selected' : ''}>Published</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Featured Image</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="post-image" value="${post.featured_image || ''}" class="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all dark:text-white" placeholder="Image URL">
+                                <button onclick="App.pickFeaturedImage()" class="px-3 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                    <span class="material-icons-round">image</span>
+                                </button>
+                            </div>
+                        </div>
+
+                         <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Excerpt</label>
+                            <textarea id="post-excerpt" rows="2" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all dark:text-white">${post.excerpt || ''}</textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Content</label>
+                            <div id="editorjs" class="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-4 prose dark:prose-invert max-w-none" style="min-height: 500px;"></div>
+                        </div>
+                    </div>
+                `;
+
+                this.showModal({
+                    title: id ? 'Edit Post' : 'Create New Post',
+                    body: modalBody,
+                    actions: [
+                        { text: 'Cancel', class: 'px-4 py-2 text-gray-500 hover:text-gray-700 font-medium', onClick: () => App.closeModal() },
+                        { text: 'Save Post', class: 'px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-lg shadow-lg shadow-primary/20 text-sm font-medium', onClick: () => App.savePost(id) }
+                    ]
+                });
+
+                // Initialize Editor.js after modal is shown (DOM element exists)
+                setTimeout(() => this.initEditor(post.content), 100);
+            },
+
+            initEditor(data) {
+                if (this.editor) {
+                    try { this.editor.destroy(); } catch (e) { }
+                    this.editor = null;
+                }
+
+                // Safe access to tools
+                const tools = {};
+                if (window.Header) tools.header = window.Header;
+                if (window.List) tools.list = window.List;
+                if (window.ImageTool) {
+                    tools.image = {
+                        class: window.ImageTool,
+                        config: {
+                            uploader: {
+                                uploadByFile: async (file) => {
+                                    const formData = new FormData();
+                                    formData.append('file', file);
+                                    try {
+                                        const res = await fetch('/api/media/upload', {
+                                            method: 'POST',
+                                            headers: { 'X-CSRF-TOKEN': this.csrfToken },
+                                            body: formData
+                                        });
+                                        const json = await res.json();
+                                        if (res.ok) {
+                                            return {
+                                                success: 1,
+                                                file: { url: json.path, ...json }
+                                            };
+                                        }
+                                    } catch (e) { console.error('Image upload failed', e); }
+                                    return { success: 0 };
+                                }
+                            }
+                        }
+                    };
+                }
+
+                this.editor = new EditorJS({
+                    holder: 'editorjs',
+                    data: data || {},
+                    placeholder: 'Type your story...',
+                    tools: tools,
+                    onReady: () => {
+                        // Fix dark mode styles for editor
+                    }
+                });
+            },
+
+            async savePost(id) {
+                const title = document.getElementById('post-title').value;
+                const slug = document.getElementById('post-slug').value;
+                const status = document.getElementById('post-status').value;
+                const excerpt = document.getElementById('post-excerpt').value;
+                const featured_image = document.getElementById('post-image').value;
+
+                let contentRaw = {};
+                if (this.editor) {
+                    contentRaw = await this.editor.save();
+                }
+                const content = JSON.stringify(contentRaw);
+
+                const data = { title, slug, status, excerpt, featured_image, content };
+
+                try {
+                    const url = id ? `/posts/${id}` : '/posts';
+                    const method = id ? 'PUT' : 'POST';
+
+                    const res = await this.api(url, method, data);
+
+                    if (res && (res.id || res.message)) {
+                        this.closeModal();
+                        this.navigate('/posts');
+                    } else {
+                        alert('Failed to save post');
+                    }
+                } catch (e) {
+                    alert('Error saving post: ' + e.message);
+                }
+            },
+
+            async deletePost(id) {
+                if (!confirm('Area you sure you want to delete this post?')) return;
+                try {
+                    const res = await this.api(`/posts/${id}`, 'DELETE');
+                    this.navigate('/posts');
+                } catch (e) {
+                    alert('Error deleting post');
+                }
+            },
+
+            async pickFeaturedImage() {
+                // Simple media picker modal
+                const mediaRes = await this.api('/api/media?type=image&limit=20'); // Direct fetch, bypass API wrapper logic to just get data
+                // Need to use this.api because of CSRF/headers
+                let images = [];
+                try {
+                    const res = await this.api('/media?type=image&limit=20');
+                    images = res.data || (Array.isArray(res) ? res : []);
+                } catch (e) { }
+
+                const grid = images.length ? images.map(img => `
+                    <div class="cursor-pointer border rounded-lg overflow-hidden aspect-square hover:ring-2 hover:ring-primary"
+                        onclick="document.getElementById('post-image').value = '${img.path}'; App.closeLightbox();"> <!-- reusing lightbox id logic for closing secondary modal? no need to be complex -->
+                        <img src="${img.path}" class="w-full h-full object-cover">
+                    </div>
+                `).join('') : '<p class="col-span-3 text-center text-gray-500">No images found</p>';
+
+                // We need a secondary modal or just replace current content? 
+                // Replacing content is bad UX (lose form data). 
+                // We'll use a hack: create a temporary modal on top or use a simple prompt for now if complex.
+                // Or better: Just a simple prompt with URL?
+                // Request said "picker from existing media library".
+                // Let's maximize the lightbox modal for this purpose since it already exists!
+
+                const lightbox = document.getElementById('lightbox-modal');
+                const lightboxImg = document.getElementById('lightbox-image');
+
+                // Repurpose lightbox container as a picker overlay?
+                // It's a bit hacky.
+                // Let's just alert for now that we will implement a proper picker, 
+                // OR just open a new window? No.
+                // Let's create a dynamic picker overlay appended to body.
+
+                const pickerId = 'media-picker-modal';
+                let picker = document.getElementById(pickerId);
+                if (!picker) {
+                    picker = document.createElement('div');
+                    picker.id = pickerId;
+                    picker.className = 'fixed inset-0 z-[60] flex items-center justify-center bg-black/50 hidden';
+                    picker.innerHTML = `
+                        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold dark:text-white">Select Image</h3>
+                                <button onclick="document.getElementById('${pickerId}').classList.add('hidden')" class="text-gray-500 hover:text-gray-700"><span class="material-icons-round">close</span></button>
+                            </div>
+                            <div id="media-picker-grid" class="grid grid-cols-4 gap-4"></div>
+                        </div>
+                    `;
+                    document.body.appendChild(picker);
+                }
+
+                const gridContainer = picker.querySelector('#media-picker-grid');
+                gridContainer.innerHTML = images.map(img => `
+                    <div class="cursor-pointer border border-border-light dark:border-border-dark rounded-lg overflow-hidden aspect-square hover:ring-2 hover:ring-primary transition-all relative group"
+                        onclick="document.getElementById('post-image').value = '${img.path}'; document.getElementById('${pickerId}').classList.add('hidden')">
+                        <img src="${img.path}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                    </div>
+                `).join('');
+
+                picker.classList.remove('hidden');
+            },
+
+
+
+            async renderPages() {
+                const pages = await this.api('/pages') || [];
+                const rows = pages.length ? pages.map(p => `
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+                    <td class="px-6 py-4">
+                        <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary">
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-gray-900 dark:text-white">${p.title || 'Untitled'}</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">/${p.slug || ''}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${p.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                            ${p.status || 'draft'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-gray-500">${p.created_at || '-'}</td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-1 text-gray-400 hover:text-primary"><span class="material-icons-round text-lg">edit</span></button>
+                            <button class="p-1 text-gray-400 hover:text-red-500"><span class="material-icons-round text-lg">delete</span></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('') : '';
+
+                return `
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Pages</h2>
+                            <nav class="flex text-sm text-gray-500"><a href="#" onclick="App.navigate('/');return false" class="hover:text-primary">Dashboard</a><span class="mx-2">/</span><span class="text-gray-800 dark:text-gray-200">Pages</span></nav>
+                        </div>
+                        <div class="mt-4 md:mt-0 flex gap-3">
+                            <button class="px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-lg shadow-lg shadow-primary/20 text-sm font-medium flex items-center transition-colors">
+                                <span class="material-icons-round text-base mr-2">add</span>
+                                Add New Page
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm overflow-hidden border border-border-light dark:border-border-dark">
+                        ${pages.length ? `<div class="overflow-x-auto"><table class="min-w-full text-left text-sm"><thead class="bg-gray-50 dark:bg-gray-800/50 uppercase text-gray-500 font-medium border-b border-border-light"><tr><th class="px-6 py-4 w-12"><input type="checkbox" class="rounded border-gray-300 text-primary"></th><th class="px-6 py-4">Title</th><th class="px-6 py-4">Status</th><th class="px-6 py-4">Date</th><th class="px-6 py-4 text-right">Actions</th></tr></thead><tbody class="divide-y divide-border-light">${rows}</tbody></table></div>` : `<div class="p-12 text-center"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"><span class="material-icons-round text-3xl text-gray-400">layers</span></div><h3 class="text-lg font-semibold text-gray-900 mb-2">No pages yet</h3><p class="text-gray-500 mb-4">Create your first page to get started.</p><button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium">Create Page</button></div>`}
+                    </div>
+                </div>
+            `;
+            },
+
+            async renderMedia() {
+                const page = this.mediaQuery?.page || 1;
+                const type = this.mediaQuery?.type || 'all';
+                const search = this.mediaQuery?.search || '';
+                const sort = this.mediaQuery?.sort || 'created_at';
+                const order = this.mediaQuery?.order || 'desc';
+
+                // Load folder path for breadcrumbs
+                await this.loadFolderPath(this.currentFolderId);
+
+                const [mediaRes, foldersRes] = await Promise.all([
+                    this.api(`/media?page=${page}&type=${type}&search=${search}&folder_id=${this.currentFolderId || ''}&sort=${sort}&order=${order}`),
+                    this.api(`/media/folders?parent_id=${this.currentFolderId || ''}`)
+                ]);
+
+                const items = mediaRes.data || (Array.isArray(mediaRes) ? mediaRes : []);
+                const meta = mediaRes.meta || { page: 1, last_page: 1, total: items.length };
+                this.mediaMeta = meta;
+
+                const folders = foldersRes || [];
+                this.folders = folders;
+
+                // Grid Folders
+                const gridFolders = folders.map(folder => `
+                    <div class="relative group cursor-pointer border rounded-lg overflow-hidden bg-white dark:bg-surface-dark border-border-light dark:border-border-dark aspect-square hover:shadow-md transition-all flex flex-col items-center justify-center"
+                        onclick="App.navigateToFolder(${folder.id})">
+                        <span class="material-icons-round text-5xl text-yellow-400 mb-2">folder</span>
+                        <span class="text-xs font-semibold text-gray-700 dark:text-gray-300 px-2 text-center truncate w-full">${folder.name}</span>
+                        
+                        <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1" onclick="event.stopPropagation()">
+                            <button onclick="App.renameFolder(${folder.id}, '${folder.name.replace(/'/g, "\\'")}')" class="p-1 bg-white dark:bg-gray-700 rounded shadow hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300">
+                                <span class="material-icons-round text-sm">edit</span>
+                            </button>
+                            <button onclick="App.deleteFolder(${folder.id})" class="p-1 bg-white dark:bg-gray-700 rounded shadow hover:bg-red-50 text-red-500">
+                                <span class="material-icons-round text-sm">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                const upButton = this.currentFolderId ? `
+                     <div class="relative group cursor-pointer border rounded-lg overflow-hidden bg-gray-50 dark:bg-surface-dark border-border-light dark:border-border-dark aspect-square hover:shadow-md transition-all flex flex-col items-center justify-center border-dashed"
+                        onclick="App.navigateUp()">
+                        <span class="material-icons-round text-4xl text-gray-400 mb-2">arrow_upward</span>
+                        <span class="text-xs font-semibold text-gray-500">Back</span>
+                    </div>
+                ` : '';
+
+                const gridItems = items.length ? items.map(item => `
+                    <div id="media-item-${item.id}" class="relative group cursor-pointer border rounded-lg overflow-hidden bg-white dark:bg-surface-dark border-border-light dark:border-border-dark aspect-square hover:shadow-md transition-all ${this.selectedFile?.id === item.id ? 'ring-2 ring-primary border-primary' : ''} ${this.selectedFileIds.has(item.id) ? 'ring-2 ring-blue-500 border-blue-500' : ''}" onclick="App.selectFile(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                         ${this.isImage(item)
+                        ? `<img src="${this.getThumb(item, 'small')}" class="w-full h-full object-cover" alt="${item.alt_text || 'Media'}" loading="lazy">`
+                        : `<div class="w-full h-full flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800 text-gray-400">
+                                <span class="material-icons-round text-4xl mb-2">description</span>
+                                <span class="text-xs uppercase font-bold">${item.filename.split('.').pop()}</span>
+                               </div>`
+                    }
+                        <div class="absolute top-2 left-2 z-10 transition-opacity ${this.selectedFileIds.has(item.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}" onclick="event.stopPropagation()">
+                            <input type="checkbox" id="media-check-${item.id}"
+                                ${this.selectedFileIds.has(item.id) ? 'checked' : ''} 
+                                onchange="App.toggleFileSelection(${item.id}, event)"
+                                class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary shadow-sm cursor-pointer block">
+                        </div>
+                        <div class="absolute inset-0 bg-black/50 opacity-0 transition-opacity flex items-center justify-center text-white ${this.selectedFile?.id === item.id ? 'opacity-100' : ''} pointer-events-none">
+                            ${this.selectedFile?.id === item.id ? '<span class="material-icons-round">check_circle</span>' : ''}
+                        </div>
+                    </div>
+                `).join('') : '';
+
+                const finalGrid = upButton + gridFolders + gridItems;
+
+                // List View
+                const listFolders = folders.map(folder => `
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer" onclick="App.navigateToFolder(${folder.id})">
+                         <td class="px-6 py-4 w-12"></td>
+                         <td class="px-6 py-4 w-16">
+                             <div class="w-10 h-10 bg-yellow-50 dark:bg-yellow-900/20 rounded overflow-hidden flex items-center justify-center">
+                                <span class="material-icons-round text-yellow-400 text-2xl">folder</span>
+                             </div>
+                         </td>
+                         <td class="px-6 py-4 font-medium text-gray-900 dark:text-white" colspan="2">${folder.name}</td>
+                         <td class="px-6 py-4 text-right">
+                            <div class="flex justify-end gap-2" onclick="event.stopPropagation()">
+                                <button onclick="App.renameFolder(${folder.id}, '${folder.name.replace(/'/g, "\\'")}')" class="text-gray-400 hover:text-primary">
+                                    <span class="material-icons-round text-lg">edit</span>
+                                </button>
+                                <button onclick="App.deleteFolder(${folder.id})" class="text-gray-400 hover:text-red-500">
+                                    <span class="material-icons-round text-lg">delete</span>
+                                </button>
+                            </div>
+                         </td>
+                    </tr>
+                `).join('');
+
+                const upRow = this.currentFolderId ? `
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer" onclick="App.navigateUp()">
+                         <td class="px-6 py-4 w-12"></td>
+                         <td class="px-6 py-4 w-16">
+                             <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded overflow-hidden flex items-center justify-center">
+                                <span class="material-icons-round text-gray-400 text-2xl">arrow_upward</span>
+                             </div>
+                         </td>
+                         <td class="px-6 py-4 font-medium text-gray-500" colspan="3">Back</td>
+                         <td class="px-6 py-4"></td>
+                    </tr>
+                ` : '';
+
+                const listItems = items.length ? items.map(item => `
+                    <tr id="media-row-${item.id}" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer ${this.selectedFile?.id === item.id ? 'bg-primary/5' : ''} ${this.selectedFileIds.has(item.id) ? 'bg-blue-50 dark:bg-blue-900/20' : ''}" onclick="App.selectFile(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                        <td class="px-6 py-4 w-12" onclick="event.stopPropagation()">
+                             <input type="checkbox" id="media-row-check-${item.id}"
+                                ${this.selectedFileIds.has(item.id) ? 'checked' : ''}
+                                onchange="App.toggleFileSelection(${item.id}, event)"
+                                class="rounded border-gray-300 text-primary focus:ring-primary bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+                        </td>
+                        <td class="px-6 py-4 w-16">
+                            <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded overflow-hidden flex items-center justify-center">
+                                ${this.isImage(item) ? `<img src="${this.getThumb(item, 'small')}" class="w-full h-full object-cover" loading="lazy">` : `<span class="material-icons-round text-gray-400">description</span>`}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="font-medium text-gray-900 dark:text-white">${item.filename}</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-500 text-xs uppercase">${item.filename.split('.').pop()}</td>
+                        <td class="px-6 py-4 text-gray-500 text-xs">${this.formatSize(item.size)}</td>
+                        <td class="px-6 py-4 text-gray-500 text-xs">${new Date(item.created_at).toLocaleDateString()}</td>
+                    </tr>
+                `).join('') : '';
+
+                const finalList = upRow + listFolders + listItems;
+
+                return `
+                <div class="flex flex-col md:flex-row gap-6">
+                    <!-- Main Area -->
+                    <div class="flex-1 flex flex-col min-w-0">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Media Library</h2>
+                                <!-- Breadcrumbs -->
+                                <nav class="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                    <button onclick="App.currentFolderId = null; App.refresh()" class="hover:text-primary flex items-center">
+                                        <span class="material-icons-round text-sm mr-1">home</span>Root
+                                    </button>
+                                    ${this.currentFolderPath.map(f => `
+                                        <span class="mx-1.5">/</span>
+                                        <button onclick="App.navigateToFolder(${f.id})" class="hover:text-primary">${f.name}</button>
+                                    `).join('')}
+                                </nav>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg flex p-1">
+                                    <button onclick="App.toggleViewMode()" class="p-1 rounded ${this.viewMode === 'grid' ? 'bg-gray-100 dark:bg-gray-700 text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}">
+                                        <span class="material-icons-round text-xl">grid_view</span>
+                                    </button>
+                                    <button onclick="App.toggleViewMode()" class="p-1 rounded ${this.viewMode === 'list' ? 'bg-gray-100 dark:bg-gray-700 text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}">
+                                        <span class="material-icons-round text-xl">view_list</span>
+                                    </button>
+                                </div>
+                                
+                                <div id="media-actions" class="flex gap-2">
+                                    ${this.selectedFileIds.size > 0 ? `
+                                        <button onclick="App.deleteSelectedFiles()" class="px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg text-sm font-medium flex items-center transition-colors">
+                                            <span class="material-icons-round text-base mr-2">delete</span>
+                                            Delete Selected (${this.selectedFileIds.size})
+                                        </button>
+                                        <button onclick="App.moveSelectedFiles()" class="px-4 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-sm font-medium flex items-center transition-colors">
+                                            <span class="material-icons-round text-base mr-2">drive_file_move</span>
+                                            Move Selected
+                                        </button>
+                                        <button onclick="App.selectedFileIds.clear(); App.refresh()" class="px-4 py-2 text-gray-500 hover:text-gray-700 font-medium text-sm">Cancel</button>
+                                    ` : `
+                                        <label class="px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-lg shadow-lg shadow-primary/20 text-sm font-medium flex items-center transition-colors cursor-pointer">
+                                            <span class="material-icons-round text-base mr-2">cloud_upload</span>
+                                            Upload New
+                                            <input type="file" class="hidden" multiple onchange="App.uploadFiles(this.files)">
+                                        </label>
+                                        
+                                        <button onclick="App.createNewFolder()" class="px-4 py-2 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium flex items-center transition-colors">
+                                            <span class="material-icons-round text-base mr-2">create_new_folder</span>
+                                            New Folder
+                                        </button>
+                                    `}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl border border-border-light dark:border-border-dark mb-6 flex flex-wrap gap-4 items-center">
+                            <div class="flex-1 relative">
+                                <span class="material-icons-round absolute left-3 top-2.5 text-gray-400 text-lg">search</span>
+                                <input type="text" placeholder="Search media..." value="${search}" 
+                                    oninput="App.filterMedia('search', this.value)"
+                                    class="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-gray-900 dark:text-gray-200">
+                            </div>
+                            <select onchange="App.filterMedia('type', this.value)" class="py-2 pl-3 pr-8 text-sm bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-gray-900 dark:text-gray-200">
+                                <option value="all" ${type === 'all' ? 'selected' : ''}>All Types</option>
+                                <option value="image" ${type === 'image' ? 'selected' : ''}>Images</option>
+                                <option value="application" ${type === 'application' ? 'selected' : ''}>Documents</option>
+                            </select>
+                            <select onchange="const [s,o] = this.value.split(':'); App.setSort(s, o)" class="py-2 pl-3 pr-8 text-sm bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-gray-900 dark:text-gray-200">
+                                <option value="created_at:desc" ${sort === 'created_at' && order === 'desc' ? 'selected' : ''}>Newest First</option>
+                                <option value="created_at:asc" ${sort === 'created_at' && order === 'asc' ? 'selected' : ''}>Oldest First</option>
+                                <option value="filename:asc" ${sort === 'filename' && order === 'asc' ? 'selected' : ''}>Name A-Z</option>
+                                <option value="filename:desc" ${sort === 'filename' && order === 'desc' ? 'selected' : ''}>Name Z-A</option>
+                                <option value="size:desc" ${sort === 'size' && order === 'desc' ? 'selected' : ''}>Largest First</option>
+                                <option value="size:asc" ${sort === 'size' && order === 'asc' ? 'selected' : ''}>Smallest First</option>
+                            </select>
+                        </div>
+
+                        ${this.viewMode === 'grid' ? `
+                            <!-- Upload Zone (Only in Grid?) -->
+                            <div class="border-2 border-dashed border-border-light dark:border-border-dark rounded-xl p-8 text-center bg-gray-50/50 dark:bg-gray-800/20 mb-6 transition-colors hover:bg-primary/5 hover:border-primary/50"
+                                ondragover="event.preventDefault(); this.classList.add('border-primary', 'bg-primary/5')"
+                                ondragleave="this.classList.remove('border-primary', 'bg-primary/5')"
+                                ondrop="event.preventDefault(); this.classList.remove('border-primary', 'bg-primary/5'); App.uploadFiles(event.dataTransfer.files)">
+                                <div class="text-primary mb-2">
+                                    <span class="material-icons-round text-4xl">cloud_upload</span>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-300 font-medium">Click to upload or drag and drop</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">SVG, PNG, JPG or GIF (max. 5MB)</p>
+                            </div>
+
+                            <!-- Grid -->
+                            <div class="pr-2 mb-6">
+                                ${(items.length || folders.length || this.currentFolderId) ? `
+                                    <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));">
+                                        ${finalGrid}
+                                    </div>
+                                ` : `
+                                    <div class="text-center py-12">
+                                        <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <span class="material-icons-round text-3xl text-gray-400">image_not_supported</span>
+                                        </div>
+                                        <p class="text-gray-500 dark:text-gray-400">No media found.</p>
+                                    </div>
+                                `}
+                            </div>
+                        ` : `
+                            <!-- List View -->
+                            <div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm overflow-hidden border border-border-light dark:border-border-dark mb-6">
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full text-left text-sm">
+                                        <thead class="bg-gray-50 dark:bg-gray-800/50 uppercase text-gray-500 font-medium border-b border-border-light dark:border-border-dark">
+                                            <tr>
+                                                <th class="px-6 py-4 w-12"></th>
+                                                <th class="px-6 py-4 w-16">Preview</th>
+                                                <th class="px-6 py-4">Name</th>
+                                                <th class="px-6 py-4">Type</th>
+                                                <th class="px-6 py-4">Size</th>
+                                                <th class="px-6 py-4">Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-border-light dark:divide-border-dark">
+                                            ${finalList}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                ${(items.length || folders.length || this.currentFolderId) ? '' : `<div class="p-8 text-center text-gray-500">No media found.</div>`}
+                            </div>
+                        `}
+
+                        <!-- Pagination (Common) -->
+                        ${meta.last_page > 1 ? `
+                            <div class="flex items-center justify-between border-t border-border-light dark:border-border-dark pt-4">
+                                <p class="text-sm text-gray-500">
+                                    Showing <span class="font-medium text-gray-900 dark:text-white">${((meta.page - 1) * meta.limit) + 1}</span> 
+                                    to <span class="font-medium text-gray-900 dark:text-white">${Math.min(meta.page * meta.limit, meta.total)}</span> 
+                                    of <span class="font-medium text-gray-900 dark:text-white">${meta.total}</span> results
+                                </p>
+                                <div class="flex gap-2">
+                                    <button ${meta.page <= 1 ? 'disabled' : ''} onclick="App.paginate(${meta.page - 1})" 
+                                        class="px-3 py-1 border border-border-light dark:border-border-dark rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                        Previous
+                                    </button>
+                                    <button ${meta.page >= meta.last_page ? 'disabled' : ''} onclick="App.paginate(${meta.page + 1})" 
+                                        class="px-3 py-1 border border-border-light dark:border-border-dark rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div id="media-sidebar" class="w-80 max-w-xs flex-shrink-0 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-4 flex flex-col h-full overflow-y-auto ${!this.selectedFile ? 'hidden' : ''}" style="width: 20rem;">
+                        ${this.renderSidebarContent(this.selectedFile)}
+                    </div>
+                </div>
+            `;
+            },
+
+            paginate(page) {
+                if (!this.mediaQuery) this.mediaQuery = { type: 'all', search: '', page: 1 };
+                this.mediaQuery.page = page;
+                this.refresh();
+            },
+
+            renderPlaceholder(title, icon) {
+                return `
+                <div class="max-w-7xl mx-auto">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">${title}</h2>
+                        <nav class="flex text-sm text-gray-500"><a href="#" onclick="App.navigate('/');return false" class="hover:text-primary">Dashboard</a><span class="mx-2">/</span><span class="text-gray-800 dark:text-gray-200">${title}</span></nav>
+                    </div>
+                    <div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-12 text-center">
+                        <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="material-icons-round text-3xl text-gray-400">${icon}</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">${title}</h3>
+                        <p class="text-gray-500 dark:text-gray-400">This section will be connected to the API.</p>
+                    </div>
+                </div>
+            `;
+            },
+
+            render404() {
+                return `
+                <div class="flex items-center justify-center h-full">
+                    <div class="text-center">
+                        <div class="text-6xl font-bold text-gray-300 dark:text-gray-700 mb-4">404</div>
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Page Not Found</h2>
+                        <p class="text-gray-500 dark:text-gray-400 mb-4">The page you're looking for doesn't exist.</p>
+                        <button onclick="App.navigate('/')" class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium">
+                            Go to Dashboard
+                        </button>
+                    </div>
+                </div>
+            `;
+            },
+
+            renderSidebarContent(file) {
+                if (!file) return '';
+                return `
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-gray-900 dark:text-white">File Details</h3>
+                        <button onclick="App.closeSidebar()" class="text-gray-400 hover:text-gray-600">
+                            <span class="material-icons-round">close</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden mb-4 border border-border-light dark:border-border-dark w-full relative group cursor-pointer" ${this.isImage(file) ? `onclick="App.showLightbox('${file.path}')"` : ''}>
+                         ${this.isImage(file)
+                        ? `<img src="${this.getThumb(file, 'medium')}" class="w-full h-auto max-h-[300px] object-contain mx-auto">
+                           <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                               <span class="material-icons-round text-white text-3xl">zoom_in</span>
+                           </div>`
+                        : `<div class="h-48 flex items-center justify-center"><span class="material-icons-round text-6xl text-gray-300">description</span></div>`
+                    }
+                    </div>
+
+                    <div class="space-y-4 text-sm">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">File Name</label>
+                            <div class="flex">
+                                <input type="text" readonly value="${file.filename}" class="flex-1 min-w-0 px-3 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-l-lg text-gray-600 dark:text-gray-300 text-xs">
+                                <div class="px-2 bg-gray-100 dark:bg-gray-700 rounded-r-lg flex items-center text-xs text-gray-500 border-l border-gray-200 dark:border-gray-600">.${file.filename.split('.').pop()}</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Alt Text</label>
+                            <textarea rows="2" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-gray-900 dark:text-white text-xs resize-none focus:ring-1 focus:ring-primary"
+                                onchange="App.updateFile(${file.id}, {alt_text: this.value})">${file.alt_text || ''}</textarea>
+                            <p class="text-[10px] text-gray-400 mt-1">Describe the image for SEO and accessibility.</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 py-4 border-t border-b border-border-light dark:border-border-dark">
+                            <div>
+                                <p class="text-xs text-gray-500">Dimensions</p>
+                                <p class="font-medium text-gray-900 dark:text-white text-xs">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">File Size</p>
+                                <p class="font-medium text-gray-900 dark:text-white text-xs">${this.formatSize(file.size)}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Uploaded On</p>
+                                <p class="font-medium text-gray-900 dark:text-white text-xs">${new Date(file.created_at).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">File URL</label>
+                            <div class="flex">
+                                <input type="text" readonly value="${window.location.origin}${file.path}" class="flex-1 min-w-0 px-3 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-l-lg text-gray-500 dark:text-gray-400 text-xs truncate">
+                                <button onclick="navigator.clipboard.writeText('${window.location.origin}${file.path}')" class="px-3 bg-gray-100 dark:bg-gray-700 rounded-r-lg hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500">
+                                    <span class="material-icons-round text-sm">content_copy</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 grid grid-cols-2 gap-2">
+                            <button onclick="App.downloadFile('${file.path}', '${file.filename}')" class="px-3 py-2 border border-border-light dark:border-border-dark text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-xs font-medium transition-colors flex items-center justify-center">
+                                <span class="material-icons-round text-sm mr-1">download</span> Download
+                            </button>
+                            <button onclick="App.renameFile(${file.id}, '${file.filename.replace(/'/g, "\\'")}')"
+                                class="px-3 py-2 border border-border-light dark:border-border-dark text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-xs font-medium transition-colors flex items-center justify-center">
+                                <span class="material-icons-round text-sm mr-1">edit</span> Rename
+                            </button>
+                            <button onclick="App.deleteFile(${file.id})" class="px-3 py-2 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg text-xs font-medium transition-colors flex items-center justify-center">
+                                <span class="material-icons-round text-sm mr-1">delete</span> Delete
+                            </button>
+                            <button onclick="App.closeSidebar()" class="px-3 py-2 bg-primary hover:bg-primaryHover text-white rounded-lg text-xs font-medium transition-colors">
+                                Done
+                            </button>
+                        </div>
+                    </div>
+                `;
+            },
+
+            async createNewFolder() {
+                const name = await this.prompt("Create New Folder", "Enter folder name:");
+                if (!name) return;
+                try {
+                    const res = await this.api('/media/folders', 'POST', { name, parent_id: this.currentFolderId });
+                    if (res && res.success) {
+                        this.refresh();
+                    } else {
+                        alert(res.error || 'Failed');
+                    }
+                } catch (e) { alert('Error creating folder'); }
+            },
+
+            async renameFolder(id, currentName) {
+                const name = await this.prompt("Rename Folder", "Enter new name:", currentName);
+                if (name && name !== currentName) {
+                    try {
+                        const res = await this.api(`/media/folders/${id}`, 'PUT', { name });
+                        if (res && res.success) this.refresh();
+                        else alert(res.error || 'Failed');
+                    } catch (e) { alert('Error renaming folder'); }
+                }
+            },
+
+            async deleteFolder(id) {
+                if (confirm("Delete this folder and all its contents? This cannot be undone.")) {
+                    try {
+                        const res = await this.api(`/media/folders/${id}`, 'DELETE');
+                        if (res && res.success) this.refresh();
+                        else alert(res.error || 'Failed');
+                    } catch (e) { alert('Error deleting folder'); }
+                }
+            },
+
+            navigateToFolder(id) {
+                this.currentFolderId = id;
+                this.selectedFileIds.clear();
+                this.selectedFile = null;
+                this.mediaQuery.page = 1;
+                this.refresh();
+            },
+
+            async navigateUp() {
+                if (!this.currentFolderId) return;
+                const res = await this.api(`/media/folders?id=${this.currentFolderId}`, 'GET');
+                if (res && res.length > 0) {
+                    this.currentFolderId = res[0].parent_id;
+                } else {
+                    this.currentFolderId = null;
+                }
+                this.refresh();
+            },
+
+            async moveSelectedFiles() {
+                if (!this.selectedFileIds.size) return;
+                const targetId = await this.pickFolder();
+                if (targetId === undefined) return; // Cancelled
+
+                try {
+                    const res = await this.api('/media/move', 'POST', {
+                        ids: Array.from(this.selectedFileIds),
+                        folder_id: targetId
+                    });
+
+                    if (res && res.success) {
+                        this.selectedFileIds.clear();
+                        this.selectedFile = null;
+                        this.refresh();
+                    } else {
+                        alert(res.error || 'Move failed');
+                    }
+                } catch (e) { alert('Error moving files'); }
+            },
+
+            // Modal System
+            showModal({ title, body, actions }) {
+                const modal = document.getElementById('global-modal');
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-body').innerHTML = body;
+
+                const actionsContainer = document.getElementById('modal-actions');
+                actionsContainer.innerHTML = '';
+                actions.forEach(btn => {
+                    const b = document.createElement('button');
+                    b.className = btn.class || 'mt-3 inline-flex w-full justify-center rounded-md bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 sm:mt-0 sm:w-auto';
+                    b.innerText = btn.text;
+                    b.onclick = () => {
+                        if (btn.onClick) btn.onClick();
+                        if (btn.close !== false) this.closeModal();
+                    };
+                    actionsContainer.appendChild(b);
+                });
+
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+
+                // Adjust max-width for post editor
+                // Use a more robust selector to find the child div with max-width classes
+                // We assume the structure is: modal > div > div (the dialog)
+                const dialogDiv = modal.querySelector('.transform'); // The transition wrapper usually has 'transform'
+
+                if (dialogDiv) {
+                    // Reset classes
+                    dialogDiv.classList.remove('sm:max-w-lg', 'sm:max-w-4xl', 'sm:max-w-6xl');
+
+                    if (title.includes('Edit Post') || title.includes('Create New Post')) {
+                        dialogDiv.classList.add('sm:max-w-6xl'); // Even wider for editor
+                    } else {
+                        dialogDiv.classList.add('sm:max-w-lg'); // Default
+                    }
+                }
+            },
+
+            closeModal() {
+                const modal = document.getElementById('global-modal');
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+                if (this.editor) {
+                    try { this.editor.destroy(); } catch (e) { }
+                    this.editor = null;
+                }
+            },
+
+            prompt(title, label, value = '') {
+                return new Promise(resolve => {
+                    this.showModal({
+                        title,
+                        body: `
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">${label}</label>
+                            <input type="text" id="prompt-input" value="${value}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white focus:ring-primary focus:border-primary">
+                        `,
+                        actions: [
+                            { text: 'Confirm', class: 'inline-flex w-full justify-center rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primaryHover sm:w-auto', onClick: () => resolve(document.getElementById('prompt-input').value) },
+                            { text: 'Cancel', onClick: () => resolve(null) }
+                        ]
+                    });
+                    setTimeout(() => document.getElementById('prompt-input').focus(), 100);
+                });
+            },
+
+            async pickFolder() {
+                return new Promise(async resolve => {
+                    // Fetch all folders flattened (simple for MVP)
+                    // Real app should use hierarchy or lazy load. 
+                    // I'll re-use 'getFolders' without parent_id filter? No, API filters.
+                    // I need a way to get ALL folders.
+                    // I didn't implement 'getFolders' with 'all=true'.
+                    // I only implemented filtering.
+                    // But if I pass NO params to getFolders?
+                    // Code: `if ($id) ... elseif ($parentId...) else { parent_id IS NULL }`.
+                    // So default getFolders returns ROOT folders only.
+                    // For Move to Subfolder, this picker needs navigation.
+
+                    // Simple Folder Picker with Navigation:
+                    this._renderFolderPicker(null, resolve);
+                });
+            },
+
+            async _renderFolderPicker(parentId, resolve) {
+                const res = await this.api(parentId ? `/media/folders?parent_id=${parentId}` : '/media/folders', 'GET');
+                const folders = res || [];
+
+                // Fetch current folder name for title if parentId set
+                let title = "Select Folder";
+                if (parentId) {
+                    const current = await this.api(`/media/folders?id=${parentId}`, 'GET');
+                    if (current && current.length) title = current[0].name;
+                }
+
+                let html = `<div class="max-h-60 overflow-y-auto space-y-2">`;
+
+                if (parentId) {
+                    // Up button logic requires knowing grandparent.
+                    // For MVP, just "Back to Root" or simple "Up".
+                    // Implementing full traversal in modal is complex.
+                    // I'll provide "Root" button always.
+                    html += `<div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer flex items-center text-primary" onclick="App._renderFolderPicker(null, App._pendingResolve)">
+                                <span class="material-icons-round mr-2">home</span> Root
+                              </div>`;
+                }
+
+                html += folders.map(f => `
+                    <div class="flex items-center justify-between p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer">
+                        <div class="flex items-center flex-1" onclick="App._resolvePicker(${f.id})">
+                             <span class="material-icons-round text-yellow-500 mr-2">folder</span>
+                             <span class="text-sm dark:text-gray-200">${f.name}</span>
+                        </div>
+                        <button class="text-xs text-primary underline px-2" onclick="App._renderFolderPicker(${f.id}, App._pendingResolve)">Open</button>
+                    </div>
+                 `).join('');
+
+                if (folders.length === 0) html += `<div class="text-gray-500 text-sm p-2">No subfolders</div>`;
+
+                html += `</div>`;
+
+                App._pendingResolve = resolve;
+
+                this.showModal({
+                    title: title,
+                    body: html,
+                    actions: [
+                        { text: 'Move Here', class: 'inline-flex w-full justify-center rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primaryHover sm:w-auto', onClick: () => resolve(parentId) },
+                        { text: 'Cancel', onClick: () => resolve(undefined) }
+                    ]
+                });
+            },
+
+            _resolvePicker(id) {
+                this.closeModal();
+                if (this._pendingResolve) this._pendingResolve(id);
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => App.init());
+    </script>
+</body>
+
+</html>

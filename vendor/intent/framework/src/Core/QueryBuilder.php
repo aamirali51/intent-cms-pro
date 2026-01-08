@@ -1,0 +1,757 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Core;
+
+/**
+ * Query builder for constructing and executing database queries.
+ * 
+ * This class is responsible for building SQL queries and executing them.
+ * It is created by the DB facade and should not be instantiated directly.
+ * 
+ * Usage:
+ *   $users = DB::table('users')->where('active', 1)->get();
+ *   $user = DB::table('users')->where('id', 1)->first();
+ *   DB::table('users')->insert(['name' => 'John']);
+ */
+final class QueryBuilder
+{
+    private string $table;
+    /** @var array<int, array{sql: string, chain: string}> */
+    private array $wheres = [];
+    /** @var array<int, mixed> */
+    private array $bindings = [];
+    /** @var array<int, string> */
+    private array $orderBy = [];
+    private ?int $limitValue = null;
+    private ?int $offsetValue = null;
+    /** @var array<int, string> */
+    private array $selectColumns = ['*'];
+    /** @var array<int, string> */
+    private array $joins = [];
+    /** @var array<int, string> */
+    private array $groupBy = [];
+    /** @var array<int, string> */
+    private array $having = [];
+
+    /**
+     * Allowed SQL operators (whitelist for security).
+     * 
+     * Any operator not in this list will throw an exception.
+     */
+    private const ALLOWED_OPERATORS = [
+        '=', '!=', '<>', '<', '>', '<=', '>=',
+        'LIKE', 'NOT LIKE', 'ILIKE',  // ILIKE for PostgreSQL
+        'REGEXP', 'NOT REGEXP', 'RLIKE',  // MySQL regex
+        '~', '~*', '!~', '!~*',  // PostgreSQL regex
+        'IS', 'IS NOT',
+        'IN', 'NOT IN',
+        'BETWEEN', 'NOT BETWEEN',
+    ];
+
+    /**
+     * Create a new query builder instance.
+     * 
+     * @internal Called by DB::table(), not for direct use
+     */
+    public function __construct(string $table)
+    {
+        $this->table = $table;
+    }
+
+    /**
+     * Select specific columns.
+     * 
+     * @param string|array<int, string> $columns
+     */
+    public function select(string|array $columns = ['*']): self
+    {
+        /** @var array<int, string> $cols */
+        $cols = is_array($columns) ? $columns : func_get_args();
+        $this->selectColumns = array_map([$this, 'escapeIdentifier'], $cols);
+        return $this;
+    }
+
+    /**
+     * Add a where clause.
+     * 
+     * @throws \InvalidArgumentException If operator is not allowed
+     */
+    public function where(string $column, mixed $operatorOrValue, mixed $value = null): self
+    {
+        if ($value === null) {
+            // Two arguments: where('id', 1) means where id = 1
+            $operator = '=';
+            $value = $operatorOrValue;
+        } else {
+            // Three arguments: where('age', '>', 18)
+            $operator = $this->validateOperator($operatorOrValue);
+        }
+
+        $escapedColumn = $this->escapeIdentifier($column);
+        $this->wheres[] = [
+            'sql' => "{$escapedColumn} {$operator} ?",
+            'chain' => 'AND'
+        ];
+        $this->bindings[] = $value;
+        return $this;
+    }
+
+    /**
+     * Add a where IN clause.
+     * 
+     * @param array<int, mixed> $values
+     */
+    public function whereIn(string $column, array $values): self
+    {
+        $placeholders = implode(', ', array_fill(0, count($values), '?'));
+        $escapedColumn = $this->escapeIdentifier($column);
+        $this->wheres[] = [
+            'sql' => "{$escapedColumn} IN ({$placeholders})",
+            'chain' => 'AND'
+        ];
+        $this->bindings = array_merge($this->bindings, $values);
+        return $this;
+    }
+
+    /**
+     * Add a where NULL clause.
+     */
+    public function whereNull(string $column): self
+    {
+        $escapedColumn = $this->escapeIdentifier($column);
+        $this->wheres[] = [
+            'sql' => "{$escapedColumn} IS NULL",
+            'chain' => 'AND'
+        ];
+        return $this;
+    }
+
+    /**
+     * Add a where NOT NULL clause.
+     */
+    public function whereNotNull(string $column): self
+    {
+        $escapedColumn = $this->escapeIdentifier($column);
+        $this->wheres[] = [
+            'sql' => "{$escapedColumn} IS NOT NULL",
+            'chain' => 'AND'
+        ];
+        return $this;
+    }
+
+    /**
+     * Add an OR WHERE clause.
+     * 
+     * @throws \InvalidArgumentException If operator is not allowed
+     */
+    public function orWhere(string $column, mixed $operatorOrValue, mixed $value = null): self
+    {
+        if ($value === null) {
+            $operator = '=';
+            $value = $operatorOrValue;
+        } else {
+            $operator = $this->validateOperator($operatorOrValue);
+        }
+
+        $escapedColumn = $this->escapeIdentifier($column);
+        $this->wheres[] = [
+            'sql' => "{$escapedColumn} {$operator} ?",
+            'chain' => 'OR'
+        ];
+        $this->bindings[] = $value;
+        return $this;
+    }
+
+    /**
+     * Add an OR WHERE IN clause.
+     * 
+     * @param array<int, mixed> $values
+     */
+    public function orWhereIn(string $column, array $values): self
+    {
+        $placeholders = implode(', ', array_fill(0, count($values), '?'));
+        $escapedColumn = $this->escapeIdentifier($column);
+        $this->wheres[] = [
+            'sql' => "{$escapedColumn} IN ({$placeholders})",
+            'chain' => 'OR'
+        ];
+        $this->bindings = array_merge($this->bindings, $values);
+        return $this;
+    }
+
+    /**
+     * Add an OR WHERE NULL clause.
+     */
+    public function orWhereNull(string $column): self
+    {
+        $escapedColumn = $this->escapeIdentifier($column);
+        $this->wheres[] = [
+            'sql' => "{$escapedColumn} IS NULL",
+            'chain' => 'OR'
+        ];
+        return $this;
+    }
+
+    /**
+     * Add an OR WHERE NOT NULL clause.
+     */
+    public function orWhereNotNull(string $column): self
+    {
+        $escapedColumn = $this->escapeIdentifier($column);
+        $this->wheres[] = [
+            'sql' => "{$escapedColumn} IS NOT NULL",
+            'chain' => 'OR'
+        ];
+        return $this;
+    }
+
+    /**
+     * Add an ORDER BY clause.
+     */
+    public function orderBy(string $column, string $direction = 'ASC'): self
+    {
+        $direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
+        $escapedColumn = $this->escapeIdentifier($column);
+        $this->orderBy[] = "{$escapedColumn} {$direction}";
+        return $this;
+    }
+
+    /**
+     * Add an INNER JOIN clause.
+     * 
+     * Usage:
+     *   ->join('orders', 'users.id', '=', 'orders.user_id')
+     */
+    public function join(string $table, string $first, string $operator, string $second): self
+    {
+        return $this->addJoin('INNER', $table, $first, $operator, $second);
+    }
+
+    /**
+     * Add a LEFT JOIN clause.
+     */
+    public function leftJoin(string $table, string $first, string $operator, string $second): self
+    {
+        return $this->addJoin('LEFT', $table, $first, $operator, $second);
+    }
+
+    /**
+     * Add a RIGHT JOIN clause.
+     */
+    public function rightJoin(string $table, string $first, string $operator, string $second): self
+    {
+        return $this->addJoin('RIGHT', $table, $first, $operator, $second);
+    }
+
+    /**
+     * Internal method to add a JOIN clause.
+     */
+    private function addJoin(string $type, string $table, string $first, string $operator, string $second): self
+    {
+        $operator = $this->validateOperator($operator);
+        $escapedTable = $this->escapeIdentifier($table);
+        $escapedFirst = $this->escapeIdentifier($first);
+        $escapedSecond = $this->escapeIdentifier($second);
+        
+        $this->joins[] = "{$type} JOIN {$escapedTable} ON {$escapedFirst} {$operator} {$escapedSecond}";
+        return $this;
+    }
+
+    /**
+     * Add a GROUP BY clause.
+     * 
+     * Usage:
+     *   ->groupBy('category')
+     *   ->groupBy('category', 'status')
+     */
+    public function groupBy(string ...$columns): self
+    {
+        foreach ($columns as $column) {
+            $this->groupBy[] = $this->escapeIdentifier($column);
+        }
+        return $this;
+    }
+
+    /**
+     * Add a HAVING clause (for use with GROUP BY).
+     * 
+     * Usage:
+     *   ->groupBy('category')->having('COUNT(*)', '>', 5)
+     */
+    public function having(string $column, string $operator, mixed $value): self
+    {
+        $operator = $this->validateOperator($operator);
+        $escapedColumn = $this->escapeIdentifier($column);
+        $this->having[] = "{$escapedColumn} {$operator} ?";
+        $this->bindings[] = $value;
+        return $this;
+    }
+
+    /**
+     * Limit the number of results.
+     */
+    public function limit(int $limit): self
+    {
+        $this->limitValue = $limit;
+        return $this;
+    }
+
+    /**
+     * Offset the results.
+     */
+    public function offset(int $offset): self
+    {
+        $this->offsetValue = $offset;
+        return $this;
+    }
+
+    /**
+     * Get all matching rows.
+     * 
+     * @return array<int, array<string, mixed>>
+     */
+    public function get(): array
+    {
+        $sql = $this->buildSelectQuery();
+        $stmt = DB::connection()->prepare($sql);
+        /** @var array<int, mixed> $bindings */
+        $bindings = $this->bindings;
+        $stmt->execute($bindings);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Get the first matching row.
+     * 
+     * @return array<string, mixed>|null
+     */
+    public function first(): ?array
+    {
+        $this->limitValue = 1;
+        $results = $this->get();
+        return $results[0] ?? null;
+    }
+
+    /**
+     * Find a row by primary key.
+     * 
+     * @return array<string, mixed>|null
+     */
+    public function find(int|string $id, string $primaryKey = 'id'): ?array
+    {
+        return $this->where($primaryKey, $id)->first();
+    }
+
+    /**
+     * Count matching rows.
+     */
+    public function count(): int
+    {
+        $escapedTable = $this->escapeIdentifier($this->table);
+        $sql = "SELECT COUNT(*) as count FROM {$escapedTable}";
+        
+        if (!empty($this->wheres)) {
+            $sql .= ' WHERE ' . $this->buildWhereClause();
+        }
+
+        $stmt = DB::connection()->prepare($sql);
+        /** @var array<int, mixed> $bindings */
+        $bindings = $this->bindings;
+        $stmt->execute($bindings);
+        /** @var array<string, mixed>|false $result */
+        $result = $stmt->fetch();
+        return $result && isset($result['count']) && is_numeric($result['count']) ? (int) $result['count'] : 0;
+    }
+
+    /**
+     * Check if any rows exist.
+     */
+    public function exists(): bool
+    {
+        return $this->count() > 0;
+    }
+
+    /**
+     * Insert a new row.
+     * 
+     * @param array<string, mixed> $data
+     * @return string|false Last insert ID
+     */
+    public function insert(array $data): string|false
+    {
+        $columns = array_keys($data);
+        $escapedColumns = array_map([$this, 'escapeIdentifier'], $columns);
+        $columnsList = implode(', ', $escapedColumns);
+        $placeholders = implode(', ', array_fill(0, count($data), '?'));
+
+        $escapedTable = $this->escapeIdentifier($this->table);
+        $sql = "INSERT INTO {$escapedTable} ({$columnsList}) VALUES ({$placeholders})";
+        
+        $stmt = DB::connection()->prepare($sql);
+        
+        // Bind values with proper types
+        $position = 1;
+        foreach ($data as $value) {
+            [$castValue, $type] = $this->castValue($value);
+            $stmt->bindValue($position++, $castValue, $type);
+        }
+        
+        $stmt->execute();
+        return DB::connection()->lastInsertId();
+    }
+
+    /**
+     * Insert multiple rows.
+     * 
+     * @param array<int, array<string, mixed>> $rows
+     */
+    public function insertMany(array $rows): int
+    {
+        if (empty($rows)) {
+            return 0;
+        }
+
+        $columns = array_keys($rows[0]);
+        $escapedColumns = array_map([$this, 'escapeIdentifier'], $columns);
+        $columnsList = implode(', ', $escapedColumns);
+        $placeholders = '(' . implode(', ', array_fill(0, count($columns), '?')) . ')';
+        $allPlaceholders = implode(', ', array_fill(0, count($rows), $placeholders));
+
+        $escapedTable = $this->escapeIdentifier($this->table);
+        $sql = "INSERT INTO {$escapedTable} ({$columnsList}) VALUES {$allPlaceholders}";
+
+        $stmt = DB::connection()->prepare($sql);
+        
+        // Bind all values with proper types
+        $position = 1;
+        foreach ($rows as $row) {
+            foreach ($columns as $col) {
+                $value = $row[$col] ?? null;
+                [$castValue, $type] = $this->castValue($value);
+                $stmt->bindValue($position++, $castValue, $type);
+            }
+        }
+
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
+
+    /**
+     * Insert a row, ignoring if it already exists.
+     * 
+     * Usage:
+     *   DB::table('users')->insertOrIgnore(['email' => 'test@example.com', 'name' => 'John']);
+     * 
+     * @param array<string, mixed> $data
+     * @return string|bool Last insert ID, or false if ignored
+     */
+    public function insertOrIgnore(array $data): string|bool
+    {
+        $columns = array_keys($data);
+        $escapedColumns = array_map([$this, 'escapeIdentifier'], $columns);
+        $columnsList = implode(', ', $escapedColumns);
+        $placeholders = implode(', ', array_fill(0, count($data), '?'));
+        $escapedTable = $this->escapeIdentifier($this->table);
+
+        $driver = DB::getDriverName();
+        
+        $sql = match($driver) {
+            'mysql' => "INSERT IGNORE INTO {$escapedTable} ({$columnsList}) VALUES ({$placeholders})",
+            'pgsql', 'sqlite' => "INSERT INTO {$escapedTable} ({$columnsList}) VALUES ({$placeholders}) ON CONFLICT DO NOTHING",
+            default => "INSERT INTO {$escapedTable} ({$columnsList}) VALUES ({$placeholders}) ON CONFLICT DO NOTHING"
+        };
+
+        $stmt = DB::connection()->prepare($sql);
+        
+        $position = 1;
+        foreach ($data as $value) {
+            [$castValue, $type] = $this->castValue($value);
+            $stmt->bindValue($position++, $castValue, $type);
+        }
+        
+        $stmt->execute();
+        
+        $lastId = DB::connection()->lastInsertId();
+        return $lastId ?: false;
+    }
+
+    /**
+     * Insert a row, or update if it already exists (UPSERT).
+     * 
+     * Usage:
+     *   DB::table('users')->insertOrUpdate(
+     *       ['email' => 'test@example.com', 'name' => 'John'],  // data to insert
+     *       ['name' => 'John Updated']  // columns to update on conflict
+     *   );
+     * 
+     * @param array $data Data to insert
+     * @param array $updateColumns Columns to update on conflict (key => value)
+     * @return int|string Last insert ID or number of affected rows
+     */
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $updateColumns
+     */
+    public function insertOrUpdate(array $data, array $updateColumns): int|string
+    {
+        $columns = array_keys($data);
+        $escapedColumns = array_map([$this, 'escapeIdentifier'], $columns);
+        $columnsList = implode(', ', $escapedColumns);
+        $placeholders = implode(', ', array_fill(0, count($data), '?'));
+        $escapedTable = $this->escapeIdentifier($this->table);
+
+        $driver = DB::getDriverName();
+        
+        // Build update clause
+        $updateSets = [];
+        foreach ($updateColumns as $column => $value) {
+            $escapedCol = $this->escapeIdentifier($column);
+            $updateSets[] = "{$escapedCol} = ?";
+        }
+        $updateClause = implode(', ', $updateSets);
+
+        $sql = match($driver) {
+            'mysql' => "INSERT INTO {$escapedTable} ({$columnsList}) VALUES ({$placeholders}) ON DUPLICATE KEY UPDATE {$updateClause}",
+            'pgsql', 'sqlite' => "INSERT INTO {$escapedTable} ({$columnsList}) VALUES ({$placeholders}) ON CONFLICT DO UPDATE SET {$updateClause}",
+            default => "INSERT INTO {$escapedTable} ({$columnsList}) VALUES ({$placeholders}) ON CONFLICT DO UPDATE SET {$updateClause}"
+        };
+
+        $stmt = DB::connection()->prepare($sql);
+        
+        // Bind insert values
+        $position = 1;
+        foreach ($data as $value) {
+            [$castValue, $type] = $this->castValue($value);
+            $stmt->bindValue($position++, $castValue, $type);
+        }
+        
+        // Bind update values
+        foreach ($updateColumns as $value) {
+            [$castValue, $type] = $this->castValue($value);
+            $stmt->bindValue($position++, $castValue, $type);
+        }
+        
+        $stmt->execute();
+        
+        return DB::connection()->lastInsertId() ?: $stmt->rowCount();
+    }
+
+    /**
+     * Update matching rows.
+     * 
+     * @param array<string, mixed> $data
+     * @return int Number of affected rows
+     */
+    public function update(array $data): int
+    {
+        $sets = [];
+
+        foreach ($data as $column => $value) {
+            $escapedColumn = $this->escapeIdentifier($column);
+            $sets[] = "{$escapedColumn} = ?";
+        }
+
+        $escapedTable = $this->escapeIdentifier($this->table);
+        $sql = "UPDATE {$escapedTable} SET " . implode(', ', $sets);
+
+        if (!empty($this->wheres)) {
+            $sql .= ' WHERE ' . $this->buildWhereClause();
+        }
+
+        $stmt = DB::connection()->prepare($sql);
+        
+        // Bind SET values with proper types
+        $position = 1;
+        foreach ($data as $value) {
+            [$castValue, $type] = $this->castValue($value);
+            $stmt->bindValue($position++, $castValue, $type);
+        }
+        
+        // Bind WHERE values
+        foreach ($this->bindings as $value) {
+            [$castValue, $type] = $this->castValue($value);
+            $stmt->bindValue($position++, $castValue, $type);
+        }
+        
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
+
+    /**
+     * Delete matching rows.
+     * 
+     * @return int Number of deleted rows
+     */
+    public function delete(): int
+    {
+        $escapedTable = $this->escapeIdentifier($this->table);
+        $sql = "DELETE FROM {$escapedTable}";
+
+        if (!empty($this->wheres)) {
+            $sql .= ' WHERE ' . $this->buildWhereClause();
+        }
+
+        $stmt = DB::connection()->prepare($sql);
+        /** @var array<int, mixed> $bindings */
+        $bindings = $this->bindings;
+        $stmt->execute($bindings);
+
+        return $stmt->rowCount();
+    }
+
+    /**
+     * Build the SELECT query.
+     */
+    private function buildSelectQuery(): string
+    {
+        $columns = implode(', ', $this->selectColumns);
+        $escapedTable = $this->escapeIdentifier($this->table);
+        $sql = "SELECT {$columns} FROM {$escapedTable}";
+
+        // Add JOINs
+        if (!empty($this->joins)) {
+            $sql .= ' ' . implode(' ', $this->joins);
+        }
+
+        // Add WHERE
+        if (!empty($this->wheres)) {
+            $sql .= ' WHERE ' . $this->buildWhereClause();
+        }
+
+        // Add GROUP BY
+        if (!empty($this->groupBy)) {
+            $sql .= ' GROUP BY ' . implode(', ', $this->groupBy);
+        }
+
+        // Add HAVING
+        if (!empty($this->having)) {
+            $sql .= ' HAVING ' . implode(' AND ', $this->having);
+        }
+
+        // Add ORDER BY
+        if (!empty($this->orderBy)) {
+            $sql .= ' ORDER BY ' . implode(', ', $this->orderBy);
+        }
+
+        // Add LIMIT
+        if ($this->limitValue !== null) {
+            $sql .= " LIMIT {$this->limitValue}";
+        }
+
+        // Add OFFSET
+        if ($this->offsetValue !== null) {
+            $sql .= " OFFSET {$this->offsetValue}";
+        }
+
+        return $sql;
+    }
+
+    /**
+     * Build WHERE clause handling AND/OR chains.
+     */
+    private function buildWhereClause(): string
+    {
+        $whereClauses = [];
+        foreach ($this->wheres as $index => $where) {
+            if ($index === 0) {
+                $whereClauses[] = $where['sql'];
+            } else {
+                $whereClauses[] = $where['chain'] . ' ' . $where['sql'];
+            }
+        }
+        return implode(' ', $whereClauses);
+    }
+
+    /**
+     * Escape identifier (table/column name) based on database driver.
+     * 
+     * Properly escapes quotes within identifiers to prevent SQL injection.
+     * 
+     * MySQL: backtick (`) → doubled backtick (``)
+     * PostgreSQL/SQLite: double quote (") → doubled double quote ("")
+     * 
+     * Examples:
+     *   MySQL: `user` → `user`, `user`name` → `user``name`
+     *   Postgres: "user" → "user", "user"name" → "user""name"
+     */
+    private function escapeIdentifier(string $identifier): string
+    {
+        // Handle qualified identifiers (table.column)
+        if (str_contains($identifier, '.')) {
+            $parts = explode('.', $identifier);
+            return implode('.', array_map([$this, 'escapeIdentifier'], $parts));
+        }
+
+        // Don't escape wildcards or already escaped identifiers
+        if ($identifier === '*' || str_starts_with($identifier, '`') || str_starts_with($identifier, '"')) {
+            return $identifier;
+        }
+
+        $driver = DB::getDriverName();
+        
+        return match($driver) {
+            'mysql' => '`' . strtr($identifier, ['`' => '``', '\\' => '\\\\']) . '`',
+            'pgsql', 'sqlite', 'sqlsrv' => '"' . strtr($identifier, ['"' => '""', '\\' => '\\\\']) . '"',
+            default => '"' . strtr($identifier, ['"' => '""', '\\' => '\\\\']) . '"'
+        };
+    }
+
+    /**
+     * Validate operator against whitelist to prevent SQL injection.
+     * 
+     * @throws \InvalidArgumentException If operator is not in whitelist
+     */
+    private function validateOperator(mixed $operator): string
+    {
+        if (!is_string($operator)) {
+            throw new \InvalidArgumentException("Operator must be a string");
+        }
+        $normalized = strtoupper(trim($operator));
+        
+        if (!in_array($normalized, self::ALLOWED_OPERATORS, true)) {
+            throw new \InvalidArgumentException(
+                "Invalid SQL operator: '{$operator}'. " .
+                "Allowed operators: " . implode(', ', self::ALLOWED_OPERATORS)
+            );
+        }
+        
+        return $operator;
+    }
+
+    /**
+     * Cast value to appropriate PDO type.
+     * 
+     * @return array{0: mixed, 1: int} [value, PDO::PARAM_*]
+     */
+    private function castValue(mixed $value): array
+    {
+        return match(true) {
+            $value instanceof \DateTimeInterface => [
+                $value->format('Y-m-d H:i:s'),
+                \PDO::PARAM_STR
+            ],
+            is_bool($value) => [
+                $value ? 1 : 0,
+                \PDO::PARAM_INT
+            ],
+            is_null($value) => [
+                null,
+                \PDO::PARAM_NULL
+            ],
+            is_int($value) => [
+                $value,
+                \PDO::PARAM_INT
+            ],
+            is_float($value) => [
+                $value,
+                \PDO::PARAM_STR  // PDO doesn't have PARAM_FLOAT
+            ],
+            default => [
+                is_scalar($value) ? (string) $value : '',
+                \PDO::PARAM_STR
+            ]
+        };
+    }
+}

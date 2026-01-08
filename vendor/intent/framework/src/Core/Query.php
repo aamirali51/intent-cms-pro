@@ -1,0 +1,121 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Core;
+
+use DateTimeInterface;
+
+/**
+ * Query reconstruction helper for debugging.
+ * 
+ * Reconstructs a prepared statement with bindings replaced,
+ * making it easy to copy queries directly to an SQL editor.
+ * 
+ * Contributed by @UniForceMusic
+ * 
+ * Usage:
+ *   $query = new Query('SELECT * FROM users WHERE id = :id', [':id' => 1]);
+ *   echo $query->toSql('mysql'); // SELECT * FROM users WHERE id = 1
+ */
+final class Query
+{
+    /**
+     * Regex pattern to match named parameters while respecting quoted strings.
+     */
+    public const REGEX_PATTERN_NAMED_PARAMS = '/(?:\'(?:\\\\.|[^\\\\\'])*\'|\"(?:\\\\.|[^\\\\\"])*\"|\`(?:\\\\.|[^\\\\\`])*\`|\[(?:\\\\.|[^\[\]])*?\]|(\:\w+)(?=(?:[^\'\"\`\[\]]|\'(?:\\\\.|[^\\\\\'])*\'|\"(?:\\\\.|[^\\\\\"])*\"|\`(?:\\\\.|[^\\\\\`])*\`|\[(?:\\\\.|[^\[\]])*?\])*$)|(?:\-\-[^\r\n]*|\/\*[\s\S]*?\*\/|\#.*))/m';
+    public const INI_PCRE_JIT = 'pcre.jit';
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    public function __construct(
+        public string $sql,
+        public array $params
+    ) {
+    }
+
+    /**
+     * Convert the query to raw SQL with bindings replaced.
+     * 
+     * @param string $driver Database driver name (mysql, pgsql, sqlite)
+     * @return string The reconstructed SQL query
+     */
+    public function toSql(string $driver): string
+    {
+        return $this->pregReplaceCallback(
+            static::REGEX_PATTERN_NAMED_PARAMS,
+            function (array $match) use ($driver): string {
+                if (!$this->isNamedParamMatch($match)) {
+                    return $match[0];
+                }
+
+                $key = $match[1];
+                $value = $this->params[$key];
+
+                return $this->castParam($driver, $value);
+            },
+            $this->sql
+        );
+    }
+
+    private function castParam(string $driver, mixed $value): string
+    {
+        if (is_null($value)) {
+            return 'NULL';
+        }
+
+        if (is_bool($value)) {
+            return (string) ($value ? 1 : 0);
+        }
+
+        if (is_string($value)) {
+            return match ($driver) {
+                'mysql' => sprintf('"%s"', str_replace('"', '""', (string) $value)),
+                default => sprintf("'%s'", str_replace("'", "''", (string) $value)),
+            };
+        }
+
+        if ($value instanceof DateTimeInterface) {
+            return $this->castParam(
+                $driver,
+                $value->format('Y-m-d H:i:s')
+            );
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (string) $value;
+        }
+        
+        /** @var string $stringValue */
+        $stringValue = $value;
+        return $stringValue;
+    }
+
+    private function pregReplaceCallback(string $pattern, callable $callback, string $subject): string
+    {
+        /**
+         * To prevent possible out-of-memory issues, PCRE just in time compilation needs to be temporarily disabled
+         * This can only happen with large recursive capture groups when nested quotes or very large IN lists are present
+         */
+        $ini = ini_get(static::INI_PCRE_JIT);
+
+        ini_set(static::INI_PCRE_JIT, '0');
+
+        $result = (string) preg_replace_callback($pattern, $callback, $subject);
+
+        if (!is_bool($ini)) {
+            ini_set(static::INI_PCRE_JIT, $ini);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array<int|string, mixed> $match
+     */
+    private function isNamedParamMatch(array $match): bool
+    {
+        return count($match) > 1;
+    }
+}
