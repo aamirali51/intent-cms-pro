@@ -216,10 +216,10 @@ ob_start();
                     </div>
                 `,
                 actions: [
-                    { text: 'Cancel', onClick: () => this.closeModal() },
                     { 
                         text: 'Delete User', 
-                        class: 'inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto sm:ml-3', 
+                        class: 'mt-3 inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:mt-0 sm:w-auto',
+                        style: 'background-color: #dc2626; color: white;', 
                         onClick: async () => {
                             this.closeModal();
                             try {
@@ -235,7 +235,8 @@ ob_start();
                             }
                         },
                         close: false
-                    }
+                    },
+                    { text: 'Cancel', class: 'mt-3 inline-flex w-full justify-center rounded-md bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 sm:mt-0 sm:w-auto sm:ml-3', onClick: () => this.closeModal() }
                 ]
             });
         }

@@ -155,6 +155,7 @@ if ($basePath === '/') $basePath = '';
                 actions.forEach(btn => {
                     const b = document.createElement('button');
                     b.className = btn.class || 'mt-3 inline-flex w-full justify-center rounded-md bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 sm:mt-0 sm:w-auto';
+                    if (btn.style) b.style.cssText = btn.style;
                     b.innerText = btn.text;
                     b.onclick = () => {
                         if (btn.onClick) btn.onClick();
