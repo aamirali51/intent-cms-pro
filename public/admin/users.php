@@ -57,7 +57,7 @@ ob_start();
                             <button onclick="App.editUser(${u.id})" class="p-1 text-gray-400 hover:text-primary transition-colors" title="Edit">
                                 <span class="material-icons-round text-lg">edit</span>
                             </button>
-                            <button onclick="App.deleteUser(${u.id}, '${(u.name || '').replace(/'/g, "\\'")}', '${u.email || ''}')" class="p-1 text-gray-400 hover:text-red-500 transition-colors" title="Delete">
+                            <button onclick="App.deleteUser(${u.id}, this)" data-name="${(u.name || '').replace(/"/g, '&quot;')}" data-email="${(u.email || '').replace(/"/g, '&quot;')}" class="p-1 text-gray-400 hover:text-red-500 transition-colors" title="Delete">
                                 <span class="material-icons-round text-lg">delete</span>
                             </button>
                         </div>
@@ -195,7 +195,9 @@ ob_start();
             }
         },
 
-        async deleteUser(id, name, email) {
+        async deleteUser(id, btn) {
+            const name = btn.dataset.name || 'this user';
+            const email = btn.dataset.email || '';
             if (!confirm(`Are you sure you want to delete user "${name}" (${email})?`)) return;
             try {
                 const res = await this.api(`/users/${id}`, 'DELETE');
