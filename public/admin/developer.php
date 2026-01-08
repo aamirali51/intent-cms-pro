@@ -205,6 +205,49 @@ $registeredHooks = PluginLoader::getRegisteredHooks();
                             </div>
                         </div>
 
+                        <!-- cms.user.created -->
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-start justify-between">
+                                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-primary">cms.user.created</code>
+                                <span class="text-xs text-gray-400">Action</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Fired after a new user is created.</p>
+                            <div class="mt-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                                <pre class="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto"><code>add_action('cms.user.created', function(int $userId, array $data): void {
+    // $data contains name, email, role
+    // Send welcome email, log activity
+}, 10);</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- cms.user.updated -->
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-start justify-between">
+                                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-primary">cms.user.updated</code>
+                                <span class="text-xs text-gray-400">Action</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Fired after a user profile is updated.</p>
+                            <div class="mt-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                                <pre class="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto"><code>add_action('cms.user.updated', function(int $userId, array $data): void {
+    // Profile changed, clear caches
+}, 10);</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- cms.user.deleted -->
+                        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+                            <div class="flex items-start justify-between">
+                                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-primary">cms.user.deleted</code>
+                                <span class="text-xs text-gray-400">Action</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">Fired after a user is deleted.</p>
+                            <div class="mt-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                                <pre class="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto"><code>add_action('cms.user.deleted', function(int $userId, array $userData): void {
+    // Clean up user data, reassign content
+}, 10);</code></pre>
+                            </div>
+                        </div>
+
                         <!-- cms.settings.saved -->
                         <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
                             <div class="flex items-start justify-between">
@@ -415,6 +458,41 @@ $registeredHooks = PluginLoader::getRegisteredHooks();
                             <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
                             <code class="text-gray-600 dark:text-gray-300">/api/v1/media</code>
                             <span class="text-gray-400 text-xs">List media files</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Endpoints -->
+                <div class="p-5">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+                        Users
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/users</code>
+                            <span class="text-gray-400 text-xs">List all users with roles</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded text-xs font-mono">GET</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/users/{id}</code>
+                            <span class="text-gray-400 text-xs">Get single user</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded text-xs font-mono">POST</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/users</code>
+                            <span class="text-gray-400 text-xs">Create user (name, email, password, role)</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 rounded text-xs font-mono">PUT</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/users/{id}</code>
+                            <span class="text-gray-400 text-xs">Update user</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="px-2 py-0.5 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded text-xs font-mono">DELETE</span>
+                            <code class="text-gray-600 dark:text-gray-300">/api/users/{id}</code>
+                            <span class="text-gray-400 text-xs">Delete user (cannot delete self)</span>
                         </div>
                     </div>
                 </div>
