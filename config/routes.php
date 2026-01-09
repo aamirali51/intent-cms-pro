@@ -200,6 +200,32 @@ Route::group(['prefix' => '/api', 'middleware' => [AuthMiddleware::class]], func
     });
     
     // ─────────────────────────────────────────────────────────
+    // Tags CRUD
+    // ─────────────────────────────────────────────────────────
+    
+    Route::get('/tags', fn(Request $req, Response $res) => \App\Handlers\Content\TagHandler::index($req, $res));
+    Route::post('/tags', fn(Request $req, Response $res) => \App\Handlers\Content\TagHandler::store($req, $res));
+    Route::get('/tags/{id}', fn(Request $req, Response $res, array $params) => \App\Handlers\Content\TagHandler::show($req, $res, $params));
+    Route::put('/tags/{id}', fn(Request $req, Response $res, array $params) => \App\Handlers\Content\TagHandler::update($req, $res, $params));
+    Route::delete('/tags/{id}', fn(Request $req, Response $res, array $params) => \App\Handlers\Content\TagHandler::destroy($req, $res, $params));
+    Route::post('/tags/bulk-delete', fn(Request $req, Response $res) => \App\Handlers\Content\TagHandler::bulkDelete($req, $res));
+    Route::post('/tags/merge', fn(Request $req, Response $res) => \App\Handlers\Content\TagHandler::merge($req, $res));
+    
+    // ─────────────────────────────────────────────────────────
+    // Comments Management
+    // ─────────────────────────────────────────────────────────
+    
+    Route::get('/comments', fn(Request $req, Response $res) => \App\Handlers\Content\CommentHandler::index($req, $res));
+    Route::post('/comments', fn(Request $req, Response $res) => \App\Handlers\Content\CommentHandler::store($req, $res));
+    Route::get('/comments/{id}', fn(Request $req, Response $res, array $params) => \App\Handlers\Content\CommentHandler::show($req, $res, $params));
+    Route::put('/comments/{id}', fn(Request $req, Response $res, array $params) => \App\Handlers\Content\CommentHandler::update($req, $res, $params));
+    Route::put('/comments/{id}/status', fn(Request $req, Response $res, array $params) => \App\Handlers\Content\CommentHandler::updateStatus($req, $res, $params));
+    Route::delete('/comments/{id}', fn(Request $req, Response $res, array $params) => \App\Handlers\Content\CommentHandler::destroy($req, $res, $params));
+    Route::post('/comments/bulk', fn(Request $req, Response $res) => \App\Handlers\Content\CommentHandler::bulkAction($req, $res));
+    Route::post('/comments/{id}/reply', fn(Request $req, Response $res, array $params) => \App\Handlers\Content\CommentHandler::reply($req, $res, $params));
+    Route::get('/posts/{id}/comments', fn(Request $req, Response $res, array $params) => \App\Handlers\Content\CommentHandler::forPost($req, $res, $params));
+    
+    // ─────────────────────────────────────────────────────────
     // Users CRUD
     // ─────────────────────────────────────────────────────────
     
