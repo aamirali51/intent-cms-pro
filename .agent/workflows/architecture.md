@@ -175,6 +175,19 @@ The framework provides these core components in `vendor/intent/framework/src/Cor
 | `GET` | `/api/media/folders` | List folders |
 | `POST` | `/api/media/folders` | Create folder |
 | `GET` | `/api/categories` | List categories |
+| `GET` | `/api/tags` | List all tags |
+| `POST` | `/api/tags` | Create new tag |
+| `GET` | `/api/tags/{id}` | Get single tag |
+| `PUT` | `/api/tags/{id}` | Update tag |
+| `DELETE` | `/api/tags/{id}` | Delete tag |
+| `POST` | `/api/tags/bulk-delete` | Bulk delete tags |
+| `POST` | `/api/tags/merge` | Merge tags |
+| `GET` | `/api/comments` | List comments (filterable) |
+| `POST` | `/api/comments` | Create comment |
+| `PUT` | `/api/comments/{id}/status` | Moderate comment |
+| `POST` | `/api/comments/bulk` | Bulk moderation |
+| `POST` | `/api/comments/{id}/reply` | Admin reply |
+| `GET` | `/api/posts/{id}/comments` | Get post comments |
 | `GET` | `/api/users` | List users |
 | `GET` | `/api/settings` | Site settings |
 
@@ -227,6 +240,41 @@ created_at TIMESTAMP
 id INT PRIMARY KEY
 name VARCHAR(255)
 parent_id INT FK(self)
+created_at TIMESTAMP
+updated_at TIMESTAMP
+```
+
+### cms_tags
+```sql
+id INT PRIMARY KEY
+name VARCHAR(100) UNIQUE
+slug VARCHAR(100) UNIQUE
+color VARCHAR(20) -- hex color
+description TEXT
+count INT DEFAULT 0 -- usage count
+created_at TIMESTAMP
+updated_at TIMESTAMP
+```
+
+### cms_content_tags (pivot)
+```sql
+content_id INT FK(cms_content)
+tag_id INT FK(cms_tags)
+PRIMARY KEY (content_id, tag_id)
+```
+
+### cms_comments
+```sql
+id INT PRIMARY KEY
+content_id INT FK(cms_content)
+parent_id INT FK(self) -- for threading
+author_name VARCHAR(100)
+author_email VARCHAR(255)
+author_url VARCHAR(255)
+author_ip VARCHAR(45)
+content TEXT
+status ENUM('pending','approved','spam','trash')
+user_id INT FK(users) -- if logged in
 created_at TIMESTAMP
 updated_at TIMESTAMP
 ```

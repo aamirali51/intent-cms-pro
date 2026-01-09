@@ -60,7 +60,19 @@ class PostHandler
                 return $res->json(['error' => 'Post not found'], 404);
             }
             
-            return $res->json($result[0]);
+            $post = $result[0];
+            
+            // Load tags for this post
+            $tags = db()->raw('
+                SELECT t.id, t.name, t.slug, t.color 
+                FROM cms_tags t 
+                INNER JOIN cms_content_tags ct ON t.id = ct.tag_id 
+                WHERE ct.content_id = ?
+            ', [$id]);
+            
+            $post['tags'] = $tags;
+            
+            return $res->json($post);
         } catch (\Throwable $e) {
             return $res->json(['error' => 'Database error'], 500);
         }
@@ -114,6 +126,12 @@ class PostHandler
 
             // Get last insert ID directly from PDO connection
             $id = DB::connection()->lastInsertId();
+            
+            // Sync tags
+            $rawTagIds = isset($data['tag_ids']) && is_array($data['tag_ids']) ? $data['tag_ids'] : [];
+            /** @var array<int|string> $tagIds */
+            $tagIds = array_values($rawTagIds);
+            self::syncTags((int) $id, $tagIds);
             
             return $res->json(['id' => $id, 'message' => 'Post created successfully'], 201);
         } catch (\Throwable $e) {
@@ -198,6 +216,13 @@ class PostHandler
                 'UPDATE cms_content SET ' . implode(', ', $fields) . ' WHERE id = ?',
                 $values
             );
+            
+            // Sync tags if provided
+            if (isset($data['tag_ids']) && is_array($data['tag_ids'])) {
+                /** @var array<int|string> $tagIds */
+                $tagIds = array_values($data['tag_ids']);
+                self::syncTags($id, $tagIds);
+            }
 
             return $res->json(['message' => 'Post updated successfully']);
         } catch (\Throwable $e) {
@@ -268,6 +293,41 @@ class PostHandler
             return $result[0]['slug'];
         }
         return null;
+    }
+    
+    /**
+     * Sync tags for a post
+     * 
+     * @param int $postId
+     * @param array<int|string> $tagIds
+     */
+    private static function syncTags(int $postId, array $tagIds): void
+    {
+        // Delete existing tag associations
+        db()->raw('DELETE FROM cms_content_tags WHERE content_id = ?', [$postId]);
+        
+        // Insert new associations
+        $validTagIds = array_filter(
+            array_map(fn($id): int => is_numeric($id) ? (int) $id : 0, $tagIds),
+            fn(int $id): bool => $id > 0
+        );
+        
+        foreach ($validTagIds as $tagId) {
+            db()->raw(
+                'INSERT INTO cms_content_tags (content_id, tag_id) VALUES (?, ?)',
+                [$postId, $tagId]
+            );
+        }
+        
+        // Update tag counts
+        if (!empty($validTagIds)) {
+            $placeholders = implode(',', array_fill(0, count($validTagIds), '?'));
+            db()->raw("
+                UPDATE cms_tags 
+                SET count = (SELECT COUNT(*) FROM cms_content_tags WHERE tag_id = cms_tags.id)
+                WHERE id IN ({$placeholders})
+            ", $validTagIds);
+        }
     }
 }
 

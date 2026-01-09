@@ -311,8 +311,25 @@ ob_start();
                 <span class="text-sm font-medium text-gray-900 dark:text-white">Tags</span>
                 <span class="material-icons-round text-gray-400 text-lg">expand_more</span>
             </div>
-            <div class="sidebar-panel-content">
-                <input type="text" id="post-tags" placeholder="Add tags..." class="form-input">
+            <div class="sidebar-panel-content" id="tags-panel">
+                <!-- Selected Tags -->
+                <div id="selected-tags" class="flex flex-wrap gap-1.5 mb-2"></div>
+                
+                <!-- Tag Input with Autocomplete -->
+                <div class="relative">
+                    <input type="text" id="tag-input" 
+                        placeholder="Add tags..." 
+                        class="form-input pr-8"
+                        autocomplete="off"
+                        oninput="PostEditor.searchTags(this.value)"
+                        onkeydown="PostEditor.handleTagKeydown(event)">
+                    <span class="material-icons-round absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-lg">label</span>
+                    
+                    <!-- Autocomplete Dropdown -->
+                    <div id="tag-suggestions" class="hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10 max-h-48 overflow-y-auto"></div>
+                </div>
+                
+                <p class="text-xs text-gray-400 mt-2">Press Enter to add, or select from suggestions</p>
             </div>
         </div>
     </div>
@@ -323,15 +340,22 @@ const PostEditor = {
     editor: null,
     postId: <?= $postId ? $postId : 'null' ?>,
     isNew: <?= $postId ? 'false' : 'true' ?>,
+    selectedTags: [],
+    allTags: [],
+    searchTimeout: null,
 
     async init() {
         await App.loadCsrfToken();
+        
+        // Load all tags for autocomplete
+        await this.loadAllTags();
         
         if (this.postId) {
             await this.loadPost();
         }
         
         this.initEditor();
+        this.renderSelectedTags();
     },
 
     async loadPost() {
@@ -355,6 +379,11 @@ const PostEditor = {
                 } catch(e) {
                     this.editorData = null;
                 }
+            }
+            
+            // Load post tags
+            if (post.tags && Array.isArray(post.tags)) {
+                this.selectedTags = post.tags;
             }
         } catch(e) {
             alert('Error loading post');
@@ -468,6 +497,151 @@ const PostEditor = {
         setTimeout(() => toast.remove(), action ? 8000 : 5000);
     },
 
+    // ─────────────────────────────────────────────────────────
+    // Tag Management Methods
+    // ─────────────────────────────────────────────────────────
+    
+    async loadAllTags() {
+        try {
+            const res = await App.api('/tags');
+            this.allTags = res.data || res || [];
+        } catch(e) {
+            this.allTags = [];
+        }
+    },
+
+    searchTags(query) {
+        clearTimeout(this.searchTimeout);
+        this.searchTimeout = setTimeout(() => {
+            if (!query.trim()) {
+                this.hideSuggestions();
+                return;
+            }
+            
+            const lowerQuery = query.toLowerCase();
+            const selectedIds = this.selectedTags.map(t => t.id);
+            
+            // Filter matching tags that aren't already selected
+            const matches = this.allTags.filter(t => 
+                t.name.toLowerCase().includes(lowerQuery) && !selectedIds.includes(t.id)
+            ).slice(0, 8);
+            
+            this.showSuggestions(matches, query);
+        }, 150);
+    },
+
+    showSuggestions(tags, query) {
+        const container = document.getElementById('tag-suggestions');
+        
+        let html = '';
+        
+        // Show matching tags
+        tags.forEach(t => {
+            html += `<div onclick="PostEditor.addTag(${t.id}, '${t.name.replace(/'/g, "\\'")}', '${t.color || '#6b7280'}')" 
+                class="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center justify-between">
+                <span class="flex items-center">
+                    <span class="w-3 h-3 rounded-full mr-2" style="background: ${t.color || '#6b7280'}"></span>
+                    <span class="text-sm text-gray-900 dark:text-white">${t.name}</span>
+                </span>
+                <span class="text-xs text-gray-400">${t.count || 0} posts</span>
+            </div>`;
+        });
+        
+        // Add "Create new" option if no exact match
+        const exactMatch = tags.find(t => t.name.toLowerCase() === query.toLowerCase());
+        if (!exactMatch && query.trim()) {
+            html += `<div onclick="PostEditor.createTag('${query.trim().replace(/'/g, "\\'")}')" 
+                class="px-3 py-2 hover:bg-primary/10 cursor-pointer flex items-center border-t border-gray-200 dark:border-gray-700">
+                <span class="material-icons-round text-primary mr-2 text-lg">add_circle</span>
+                <span class="text-sm text-primary font-medium">Create "${query.trim()}"</span>
+            </div>`;
+        }
+        
+        if (html) {
+            container.innerHTML = html;
+            container.classList.remove('hidden');
+        } else {
+            this.hideSuggestions();
+        }
+    },
+
+    hideSuggestions() {
+        document.getElementById('tag-suggestions').classList.add('hidden');
+    },
+
+    handleTagKeydown(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            const input = document.getElementById('tag-input');
+            const query = input.value.trim();
+            
+            if (!query) return;
+            
+            // Check if there's an exact match in allTags
+            const exactMatch = this.allTags.find(t => t.name.toLowerCase() === query.toLowerCase());
+            
+            if (exactMatch && !this.selectedTags.find(t => t.id === exactMatch.id)) {
+                this.addTag(exactMatch.id, exactMatch.name, exactMatch.color);
+            } else if (!exactMatch) {
+                // Create new tag
+                this.createTag(query);
+            }
+        } else if (event.key === 'Escape') {
+            this.hideSuggestions();
+        }
+    },
+
+    addTag(id, name, color = '#6b7280') {
+        // Check if already added
+        if (this.selectedTags.find(t => t.id === id)) return;
+        
+        this.selectedTags.push({ id, name, color });
+        this.renderSelectedTags();
+        
+        // Clear input
+        document.getElementById('tag-input').value = '';
+        this.hideSuggestions();
+        document.getElementById('save-status').textContent = 'Unsaved changes';
+    },
+
+    removeTag(id) {
+        this.selectedTags = this.selectedTags.filter(t => t.id !== id);
+        this.renderSelectedTags();
+        document.getElementById('save-status').textContent = 'Unsaved changes';
+    },
+
+    renderSelectedTags() {
+        const container = document.getElementById('selected-tags');
+        if (!container) return;
+        
+        container.innerHTML = this.selectedTags.map(t => `
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white" style="background: ${t.color || '#6b7280'}">
+                ${t.name}
+                <button onclick="PostEditor.removeTag(${t.id})" class="ml-1 hover:opacity-80">
+                    <span class="material-icons-round text-sm">close</span>
+                </button>
+            </span>
+        `).join('');
+    },
+
+    async createTag(name) {
+        try {
+            const res = await App.api('/tags', 'POST', { name });
+            
+            if (res && res.id) {
+                // Add to allTags and select it
+                const newTag = { id: res.id, name: res.name || name, color: res.color || '#8b5cf6', count: 0 };
+                this.allTags.push(newTag);
+                this.addTag(newTag.id, newTag.name, newTag.color);
+                this.showToast(`Tag "${name}" created!`, 'success');
+            } else {
+                this.showToast(res.error || 'Failed to create tag', 'error');
+            }
+        } catch(e) {
+            this.showToast('Error creating tag: ' + e.message, 'error');
+        }
+    },
+
     // Preview the post
     preview() {
         const slug = document.getElementById('post-slug').value;
@@ -505,7 +679,8 @@ const PostEditor = {
             
             const res = await App.api(url, method, {
                 title, slug, status: postStatus, excerpt, featured_image,
-                content: JSON.stringify(content)
+                content: JSON.stringify(content),
+                tag_ids: this.selectedTags.map(t => t.id)
             });
 
             if (res && (res.id || res.message)) {
